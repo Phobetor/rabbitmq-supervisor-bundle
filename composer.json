@@ -1,0 +1,30 @@
+{
+    "name": "phobetor/rabbitmq-supervisor-bundle",
+    "type": "library",
+    "license": "MIT",
+    "description" : "A Symfony 2 bundle to create and update RabbitMQ consumer daemons via supervisor",
+    "keywords": [
+        "rabbitmq",
+        "supervisor",
+        "supervisord",
+        "symfony2"
+    ],
+    "homepage": "https://github.com/Phobetor/rabbitmq-supervisor-bundle",
+    "authors": [
+        {
+            "name": "Andreas Kintzinger",
+            "homepage": "https://github.com/Phobetor/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "symfony/framework-bundle": "2.*",
+        "symfony/console": "~2.5",
+        "oldsound/rabbitmq-bundle": "~1.3",
+        "ivan1986/supervisor": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "Phobetor\\RabbitMqSupervisorBundle\\": "" }
+    },
+    "target-dir": "Phobetor/RabbitMqSupervisorBundle"
+}
