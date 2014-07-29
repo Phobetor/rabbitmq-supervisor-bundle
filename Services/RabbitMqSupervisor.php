@@ -45,6 +45,19 @@ class RabbitMqSupervisor
      */
     public function build()
     {
+        /** @var \SplFileInfo $item */
+        foreach (new \DirectoryIterator(sprintf('%s/supervisor/', $this->appDirectory)) as $item) {
+            if ($item->isDir()) {
+                continue;
+            }
+
+            if ('conf' !== $item->getExtension()) {
+                continue;
+            }
+
+            unlink($item->getPath());
+        }
+
         // generate program configuration files for all consumers
         foreach (array_keys($this->consumers) as $name) {
             $this->supervisor->genProgrammConf(
