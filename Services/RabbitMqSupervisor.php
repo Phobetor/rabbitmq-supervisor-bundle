@@ -59,7 +59,7 @@ class RabbitMqSupervisor
                     'stdout_logfile' => 'NONE',
                     'stderr_logfile' => 'NONE',
                 ),
-                '@RabbitMqSupervisor/program.conf.twig'
+                '@RabbitMqSupervisor:Supervisor/program.conf.twig'
             );
         }
 
