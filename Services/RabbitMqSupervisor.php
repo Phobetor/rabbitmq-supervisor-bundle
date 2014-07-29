@@ -53,14 +53,13 @@ class RabbitMqSupervisor
                     'name' => $name,
                     'command' => sprintf('rabbitmq:consumer -m 250 %s', $name),
                     'numprocs' => 1,
-                    'process_name' => '%(program_name)s_%(process_num)d',
                     'stopasgroup' => 'true',
                     'autorestart' => 'true',
                     'startsecs' => '2',
                     'stdout_logfile' => 'NONE',
                     'stderr_logfile' => 'NONE',
-
-                )
+                ),
+                '@RabbitMqSupervisor/program.conf.twig'
             );
         }
 
@@ -73,7 +72,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Sent -HUP to supervisord to gracefully restart all processes
+     * Send -HUP to supervisord to gracefully restart all processes
      */
     public function hup()
     {
