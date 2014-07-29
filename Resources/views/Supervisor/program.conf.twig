@@ -1,9 +1,14 @@
 {% extends 'SupervisorBundle::programm.conf.twig' %}
 
 {% block options %}
-{% if stopasgroup is defined %}stopasgroup={{ stopasgroup }}{% endif %}
-{% if autorestart is defined %}autorestart={{ autorestart }}{% endif %}
-{% if startsecs is defined %}startsecs={{ startsecs }}{% endif %}
-{% if stdout_logfile is defined %}stdout_logfile={{ stdout_logfile }}{% endif %}
-{% if stderr_logfile is defined %}stderr_logfile={{ stderr_logfile }}{% endif %}
+{% if stopasgroup is defined %}stopasgroup={{ stopasgroup }}
+{% endif %}
+{% if autorestart is defined %}autorestart={{ autorestart }}
+{% endif %}
+{% if startsecs is defined %}startsecs={{ startsecs }}
+{% endif %}
+{% if stdout_logfile is defined %}stdout_logfile={{ stdout_logfile }}
+{% endif %}
+{% if stderr_logfile is defined %}stderr_logfile={{ stderr_logfile }}
+{% endif %}
 {% endblock %}
