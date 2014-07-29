@@ -55,7 +55,7 @@ class RabbitMqSupervisor
                 continue;
             }
 
-            unlink($item->getPath());
+            unlink($item->getRealPath());
         }
 
         // generate program configuration files for all consumers
