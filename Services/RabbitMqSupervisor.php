@@ -81,7 +81,7 @@ class RabbitMqSupervisor
         $this->supervisor->reloadAndUpdate();
 
         // force restart
-        $this->hup();
+        $this->restart();
     }
 
     /**
