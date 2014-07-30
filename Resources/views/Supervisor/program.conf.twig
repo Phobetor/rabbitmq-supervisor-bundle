@@ -1,5 +1,7 @@
 {% extends 'SupervisorBundle::programm.conf.twig' %}
 
+{% block cmd %}php console --env={{ app.environment }}{% if 'prod' == app.environment %} --no-debug{% endif %} {{ command }}{% endblock cmd %}
+
 {% block options %}
 {% if stopasgroup is defined %}stopasgroup={{ stopasgroup }}
 {% endif %}
