@@ -9,8 +9,5 @@
 {% endif %}
 {% if startsecs is defined %}startsecs={{ startsecs }}
 {% endif %}
-{% if stdout_logfile is defined %}stdout_logfile={{ stdout_logfile }}
-{% endif %}
-{% if stderr_logfile is defined %}stderr_logfile={{ stderr_logfile }}
-{% endif %}
-{% endblock %}
+stdout_logfile=logs/{{ app.environment }}.log
+stderr_logfile=logs/{{ app.environment }}.log

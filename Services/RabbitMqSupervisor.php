@@ -64,13 +64,11 @@ class RabbitMqSupervisor
                 $name,
                 array(
                     'name' => $name,
-                    'command' => sprintf('rabbitmq:consumer -m 250 %s', $name),
+                    'command' => sprintf('rabbitmq:consumer -m %d %s', 250, $name),
                     'numprocs' => 1,
                     'stopasgroup' => 'true',
                     'autorestart' => 'true',
                     'startsecs' => '2',
-                    'stdout_logfile' => 'NONE',
-                    'stderr_logfile' => 'NONE',
                 ),
                 'RabbitMqSupervisorBundle:Supervisor:program.conf.twig'
             );
