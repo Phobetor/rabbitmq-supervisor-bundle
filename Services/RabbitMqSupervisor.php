@@ -80,8 +80,8 @@ class RabbitMqSupervisor
         $this->supervisor->run();
         $this->supervisor->reloadAndUpdate();
 
-        // force restart
-        $this->restart();
+        // send SIGHUP to restart processes
+        $this->hup();
     }
 
     /**
