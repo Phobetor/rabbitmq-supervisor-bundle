@@ -13,7 +13,7 @@ class ControlCommand extends ContainerAwareCommand
     {
         $this
             ->setName('rabbitmq-supervisor:control')
-            ->addArgument('command', InputArgument::REQUIRED, '(start|stop|restart|hup)')
+            ->addArgument('cmd', InputArgument::REQUIRED, '(start|stop|restart|hup)')
             ->setDescription('Common commands to control the supervisord process')
         ;
     }
@@ -23,7 +23,7 @@ class ControlCommand extends ContainerAwareCommand
         /** @var \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor $handler */
         $handler = $this->getContainer()->get('phobetor_rabbitmq_supervisor');
 
-        switch ($input->getArgument('command')) {
+        switch ($input->getArgument('cmd')) {
             case 'start':
                 $handler->start();
                 break;
