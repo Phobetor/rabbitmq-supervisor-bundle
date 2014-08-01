@@ -90,12 +90,43 @@ class RabbitMqSupervisor
      */
     public function hup()
     {
-        $pidPath = sprintf('%ssupervisord.pid', $this->appDirectory);
-        if (is_file($pidPath) && is_readable($pidPath)) {
-            $pid = (int)file_get_contents($pidPath);
+        $this->kill('HUP');
+    }
 
-            $command = sprintf('kill -HUP %d', $pid);
+    /**
+     * Send kill signal to supervisord
+     *
+     * @param string $signal
+     * @param bool $waitForProcessToDisappear
+     */
+    public function kill($signal = '', $waitForProcessToDisappear = false)
+    {
+        $pid = $this->getSupervisorPid();
+        if (!empty($pid) && $this->isProcessRunning($pid)) {
+            if (!empty($signal)) {
+                $signal = sprintf('-%s', $signal);
+            }
+
+            $command = sprintf('kill %s %d', $signal, $pid);
+
             `$command`;
+
+            if ($waitForProcessToDisappear) {
+                $this->wait();
+            }
+        }
+    }
+
+    /**
+     * Wait for supervisord process to disappear
+     */
+    public function wait()
+    {
+        $pid = $this->getSupervisorPid();
+        if (!empty($pid)) {
+            while ($this->isProcessRunning($pid)) {
+                sleep(1);
+            }
         }
     }
 
@@ -104,7 +135,40 @@ class RabbitMqSupervisor
      */
     public function restart()
     {
-        $this->supervisor->execute('stop all');
-        $this->supervisor->execute('start all');
+        $this->kill('', true);
+        $this->supervisor->run();
+    }
+
+    /**
+     * Check if a process with the given pid is running
+     *
+     * @param int $pid
+     * @return bool
+     */
+    private function isProcessRunning($pid) {
+        $state = array();
+        exec(sprintf('ps %d', $pid), $state);
+
+        /*
+         * ps will return at least one row, the column labels.
+         * If the process is running ps will return a second row with its status.
+         */
+        return 1 < count($state);
+    }
+
+    /**
+     * Determines the supervisord process id
+     *
+     * @return null|int
+     */
+    private function getSupervisorPid() {
+        $pidPath = sprintf('%slogs/supervisord.pid', $this->appDirectory);
+
+        $pid = null;
+        if (is_file($pidPath) && is_readable($pidPath)) {
+            $pid = (int)file_get_contents($pidPath);
+        }
+
+        return $pid;
     }
 }
