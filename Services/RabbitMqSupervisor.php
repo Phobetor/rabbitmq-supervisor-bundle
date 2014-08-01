@@ -27,15 +27,15 @@ class RabbitMqSupervisor
     /**
      * Initialize Handler
      *
-     * @param \Ivan1986\SupervisorBundle\Service\Supervisor $superisor
+     * @param \Ivan1986\SupervisorBundle\Service\Supervisor $supervisor
      * @param string $appDirectory
      * @param array $consumers
      *
      * @return \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor
      */
-    public function __construct(Supervisor $superisor, $appDirectory, $consumers)
+    public function __construct(Supervisor $supervisor, $appDirectory, $consumers)
     {
-        $this->supervisor = $superisor;
+        $this->supervisor = $supervisor;
         $this->appDirectory = $appDirectory;
         $this->consumers = $consumers;
     }
