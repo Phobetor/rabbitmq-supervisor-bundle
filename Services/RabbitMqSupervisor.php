@@ -77,12 +77,34 @@ class RabbitMqSupervisor
             );
         }
 
-        // update configuration
-        $this->supervisor->run();
+        // start supervisor and reload configuration
+        $this->start();
         $this->supervisor->reloadAndUpdate();
+    }
 
-        // restart supervisor to refresh everything
-        $this->restart();
+    /**
+     * Stop and start supervisord to force all processes to restart
+     */
+    public function restart()
+    {
+        $this->stop();
+        $this->start();
+    }
+
+    /**
+     * Stop supervisord and all processes
+     */
+    public function stop()
+    {
+        $this->kill('', true);
+    }
+
+    /**
+     * Stop supervisord and all processes
+     */
+    public function start()
+    {
+        $this->supervisor->run();
     }
 
     /**
@@ -128,15 +150,6 @@ class RabbitMqSupervisor
                 sleep(1);
             }
         }
-    }
-
-    /**
-     * Stop and start supervisord to force all processes to restart
-     */
-    public function restart()
-    {
-        $this->kill('', true);
-        $this->supervisor->run();
     }
 
     /**
