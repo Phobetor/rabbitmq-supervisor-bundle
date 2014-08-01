@@ -3,12 +3,8 @@
 {% block cmd %}php console --env={{ app.environment }}{% if 'prod' == app.environment %} --no-debug{% endif %} {{ command }}{% endblock cmd %}
 
 {% block options %}
-{% if stopasgroup is defined %}stopasgroup={{ stopasgroup }}
-{% endif %}
-{% if autorestart is defined %}autorestart={{ autorestart }}
-{% endif %}
-{% if startsecs is defined %}startsecs={{ startsecs }}
-{% endif %}
+{% for name, value in options %}{{ name }}={{ value }}
+{% endfor %}
 stdout_logfile=logs/{{ app.environment }}.log
 stderr_logfile=logs/{{ app.environment }}.log
 {% endblock options %}

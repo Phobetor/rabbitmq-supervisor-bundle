@@ -66,9 +66,12 @@ class RabbitMqSupervisor
                     'name' => $name,
                     'command' => sprintf('rabbitmq:consumer -m %d %s', 250, $name),
                     'numprocs' => 1,
-                    'stopasgroup' => 'true',
-                    'autorestart' => 'true',
-                    'startsecs' => '2',
+                    'options' => array(
+                        'stopasgroup' => 'true',
+                        'autorestart' => 'true',
+                        'startsecs' => '2',
+                        'stopwaitsecs' => '60',
+                    )
                 ),
                 'RabbitMqSupervisorBundle:Supervisor:program.conf.twig'
             );
