@@ -162,7 +162,7 @@ class RabbitMqSupervisor
      * @return null|int
      */
     private function getSupervisorPid() {
-        $pidPath = sprintf('%slogs/supervisord.pid', $this->appDirectory);
+        $pidPath = sprintf('%s/logs/supervisord.pid', $this->appDirectory);
 
         $pid = null;
         if (is_file($pidPath) && is_readable($pidPath)) {
