@@ -83,6 +83,15 @@ class RabbitMqSupervisor
     }
 
     /**
+     * Stop, build configuration for and start supervisord
+     */
+    public function rebuild()
+    {
+        $this->stop();
+        $this->build();
+    }
+
+    /**
      * Stop and start supervisord to force all processes to restart
      */
     public function restart()
