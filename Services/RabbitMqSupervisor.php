@@ -25,19 +25,26 @@ class RabbitMqSupervisor
     private $consumers;
 
     /**
+     * @var array
+     */
+    private $multipleConsumers;
+
+    /**
      * Initialize Handler
      *
      * @param \Ivan1986\SupervisorBundle\Service\Supervisor $supervisor
      * @param string $appDirectory
      * @param array $consumers
+     * @param array $multipleConsumers
      *
      * @return \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor
      */
-    public function __construct(Supervisor $supervisor, $appDirectory, $consumers)
+    public function __construct(Supervisor $supervisor, $appDirectory, $consumers, $multipleConsumers)
     {
         $this->supervisor = $supervisor;
         $this->appDirectory = $appDirectory;
         $this->consumers = $consumers;
+        $this->multipleConsumers = $multipleConsumers;
     }
 
     /**
@@ -65,6 +72,25 @@ class RabbitMqSupervisor
                 array(
                     'name' => $name,
                     'command' => sprintf('rabbitmq:consumer -m %d %s', 250, $name),
+                    'numprocs' => 1,
+                    'options' => array(
+                        'stopasgroup' => 'true',
+                        'autorestart' => 'true',
+                        'startsecs' => '2',
+                        'stopwaitsecs' => '60',
+                    )
+                ),
+                'RabbitMqSupervisorBundle:Supervisor:program.conf.twig'
+            );
+        }
+
+        // generate program configuration files for all multiple consumers
+        foreach (array_keys($this->multipleConsumers) as $name) {
+            $this->supervisor->genProgrammConf(
+                $name,
+                array(
+                    'name' => $name,
+                    'command' => sprintf('rabbitmq:multiple-consumer -m %d %s', 250, $name),
                     'numprocs' => 1,
                     'options' => array(
                         'stopasgroup' => 'true',

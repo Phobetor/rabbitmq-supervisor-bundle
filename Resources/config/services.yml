@@ -4,4 +4,4 @@ parameters:
 services:
     phobetor_rabbitmq_supervisor:
         class: %phobetor_rabbitmq_supervisor.rabbitmq_supervisor_service.class%
-        arguments: [@ivan1986_supervisor.supervisor_service, %kernel.root_dir%, %phobetor_rabbitmq_supervisor.consumers%]
+        arguments: [@ivan1986_supervisor.supervisor_service, %kernel.root_dir%, %phobetor_rabbitmq_supervisor.consumers%, %phobetor_rabbitmq_supervisor.multiple_consumers%]
