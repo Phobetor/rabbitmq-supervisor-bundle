@@ -24,7 +24,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        foreach (array('consumers') as $attribute) {
+        foreach (array('consumers', 'multiple_consumers') as $attribute) {
             if (isset($config[$attribute])) {
                 $container->setParameter('phobetor_rabbitmq_supervisor.' . $attribute, $config[$attribute]);
             }
