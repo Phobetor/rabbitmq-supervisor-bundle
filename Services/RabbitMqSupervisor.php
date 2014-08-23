@@ -17,7 +17,12 @@ class RabbitMqSupervisor
     /**
      * @var string
      */
-    private $appDirectory;
+    private $kernelRootDir;
+
+    /**
+     * @var string
+     */
+    private $supervisorDirectoryWorkspace;
 
     /**
      * @var array
@@ -33,16 +38,18 @@ class RabbitMqSupervisor
      * Initialize Handler
      *
      * @param \Ivan1986\SupervisorBundle\Service\Supervisor $supervisor
-     * @param string $appDirectory
+     * @param string $kernelRootDir
+     * @param string $supervisorDirectoryWorkspace
      * @param array $consumers
      * @param array $multipleConsumers
      *
      * @return \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor
      */
-    public function __construct(Supervisor $supervisor, $appDirectory, $consumers, $multipleConsumers)
+    public function __construct(Supervisor $supervisor, $kernelRootDir, $supervisorDirectoryWorkspace, $consumers, $multipleConsumers)
     {
         $this->supervisor = $supervisor;
-        $this->appDirectory = $appDirectory;
+        $this->kernelRootDir = $kernelRootDir;
+        $this->supervisorDirectoryWorkspace = $supervisorDirectoryWorkspace;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
     }
@@ -52,8 +59,14 @@ class RabbitMqSupervisor
      */
     public function build()
     {
-        /** @var \SplFileInfo $item */
-        foreach (new \DirectoryIterator(sprintf('%s/supervisor/', $this->appDirectory)) as $item) {
+        // get logs path
+        $logsDir = $this->getSupervisorFolder('logs');
+
+        // get dumped config path
+        $dumpedConfigPath = $this->getSupervisorFolder('dumpedConfig/supervisor');
+
+        // clean files dumped
+        foreach (new \DirectoryIterator($dumpedConfigPath) as $item) {
             if ($item->isDir()) {
                 continue;
             }
@@ -72,6 +85,8 @@ class RabbitMqSupervisor
                 array(
                     'name' => $name,
                     'command' => sprintf('rabbitmq:consumer -m %d %s', 250, $name),
+                    'kernelRootDir' => $this->kernelRootDir,
+                    'logsDir' => $logsDir,
                     'numprocs' => 1,
                     'options' => array(
                         'stopasgroup' => 'true',
@@ -91,6 +106,8 @@ class RabbitMqSupervisor
                 array(
                     'name' => $name,
                     'command' => sprintf('rabbitmq:multiple-consumer -m %d %s', 250, $name),
+                    'kernelRootDir' => $this->kernelRootDir,
+                    'logsDir' => $logsDir,
                     'numprocs' => 1,
                     'options' => array(
                         'stopasgroup' => 'true',
@@ -166,7 +183,7 @@ class RabbitMqSupervisor
 
             $command = sprintf('kill %s %d', $signal, $pid);
 
-            `$command`;
+            passthru($command);
 
             if ($waitForProcessToDisappear) {
                 $this->wait();
@@ -210,7 +227,8 @@ class RabbitMqSupervisor
      * @return null|int
      */
     private function getSupervisorPid() {
-        $pidPath = sprintf('%s/logs/supervisord.pid', $this->appDirectory);
+
+        $pidPath = sprintf('%s/supervisord.pid', $this->getSupervisorFolder('pid'));
 
         $pid = null;
         if (is_file($pidPath) && is_readable($pidPath)) {
@@ -218,5 +236,20 @@ class RabbitMqSupervisor
         }
 
         return $pid;
+    }
+
+    /**
+     * Get supervisor folder and create it if missing
+     * @param string $folder
+     * @param int $mode
+     * @return string
+     */
+    private function getSupervisorFolder($folder, $mode=0777)
+    {
+        $supervisorFolder = sprintf('%s/'.$folder, $this->supervisorDirectoryWorkspace);
+        if(!file_exists($supervisorFolder)) {
+            mkdir($supervisorFolder, $mode, true);
+        }
+        return $supervisorFolder;
     }
 }

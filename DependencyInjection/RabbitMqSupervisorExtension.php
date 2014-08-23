@@ -19,16 +19,11 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
+        $this->processConfiguration($configuration, $configs);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        foreach (array('consumers', 'multiple_consumers') as $attribute) {
-            if (isset($config[$attribute])) {
-                $container->setParameter('phobetor_rabbitmq_supervisor.' . $attribute, $config[$attribute]);
-            }
-        }
     }
 
     public function prepend(ContainerBuilder $container)
@@ -38,13 +33,24 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
                 case 'old_sound_rabbit_mq':
                     // take over this bundle's configuration
                     $extensionConfig = $container->getExtensionConfig($name);
-                    $container->prependExtensionConfig($this->getAlias(), $extensionConfig[0]);
+
+                    foreach (array('consumers', 'multiple_consumers') as $attribute) {
+                        if (isset($extensionConfig[0][$attribute])) {
+                            $attributeValue = $extensionConfig[0][$attribute];
+                        } else {
+                            $attributeValue = array();
+                        }
+                        $container->setParameter('phobetor_rabbitmq_supervisor.' . $attribute, $attributeValue);
+                    }
                     break;
             }
         }
 
-        $configs = $container->getExtensionConfig($this->getAlias());
-        $this->processConfiguration(new Configuration(), $configs);
+        $rabbitMqSupervisorConfig = $container->getExtensionConfig($this->getAlias());
+        $this->processConfiguration(new Configuration(), $rabbitMqSupervisorConfig);
+
+        $container->setParameter('phobetor_rabbitmq_supervisor.directory_workspace', $rabbitMqSupervisorConfig[0]['directory_workspace']);
+
     }
 
     public function getAlias()
