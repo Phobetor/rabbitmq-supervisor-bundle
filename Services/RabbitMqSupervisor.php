@@ -239,9 +239,10 @@ class RabbitMqSupervisor
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
                     'numprocs' => 1,
                     'options' => array(
-                        'stopasgroup' => 'true',
-                        'autorestart' => 'true',
                         'startsecs' => '2',
+                        'autorestart' => 'true',
+                        'stopsignal' => 'INT',
+                        'stopasgroup' => 'true',
                         'stopwaitsecs' => '60',
                     )
                 )
