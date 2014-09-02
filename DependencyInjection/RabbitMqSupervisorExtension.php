@@ -19,11 +19,14 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $this->processConfiguration($configuration, $configs);
+        $config = $this->processConfiguration($configuration, $configs);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        $container->setParameter('phobetor_rabbitmq_supervisor.paths', $config['paths']);
+        $container->setParameter('phobetor_rabbitmq_supervisor.workspace', $config['paths']['workspace']);
+        $container->setParameter('phobetor_rabbitmq_supervisor.commands', $config['commands']);
     }
 
     public function prepend(ContainerBuilder $container)
@@ -45,12 +48,6 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
                     break;
             }
         }
-
-        $rabbitMqSupervisorConfig = $container->getExtensionConfig($this->getAlias());
-        $this->processConfiguration(new Configuration(), $rabbitMqSupervisorConfig);
-
-        $container->setParameter('phobetor_rabbitmq_supervisor.directory_workspace', $rabbitMqSupervisorConfig[0]['directory_workspace']);
-
     }
 
     public function getAlias()

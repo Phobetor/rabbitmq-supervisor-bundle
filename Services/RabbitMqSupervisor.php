@@ -3,6 +3,7 @@
 namespace Phobetor\RabbitMqSupervisorBundle\Services;
 
 use Ivan1986\SupervisorBundle\Service\Supervisor;
+use Symfony\Component\Templating\EngineInterface;
 
 /**
  * @license MIT
@@ -15,14 +16,24 @@ class RabbitMqSupervisor
     private $supervisor;
 
     /**
+     * @var \Symfony\Component\Templating\EngineInterface $templating
+     */
+    private $templating;
+
+    /**
      * @var string
      */
     private $kernelRootDir;
 
     /**
-     * @var string
+     * @var array
      */
-    private $supervisorDirectoryWorkspace;
+    private $paths;
+
+    /**
+     * @var array
+     */
+    private $commands;
 
     /**
      * @var array
@@ -38,18 +49,22 @@ class RabbitMqSupervisor
      * Initialize Handler
      *
      * @param \Ivan1986\SupervisorBundle\Service\Supervisor $supervisor
+     * @param \Symfony\Component\Templating\EngineInterface $templating
      * @param string $kernelRootDir
-     * @param string $supervisorDirectoryWorkspace
+     * @param array $paths
+     * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
      *
      * @return \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor
      */
-    public function __construct(Supervisor $supervisor, $kernelRootDir, $supervisorDirectoryWorkspace, $consumers, $multipleConsumers)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, $kernelRootDir, array $paths, array $commands, $consumers, $multipleConsumers)
     {
         $this->supervisor = $supervisor;
+        $this->templating = $templating;
         $this->kernelRootDir = $kernelRootDir;
-        $this->supervisorDirectoryWorkspace = $supervisorDirectoryWorkspace;
+        $this->paths = $paths;
+        $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
     }
@@ -59,14 +74,11 @@ class RabbitMqSupervisor
      */
     public function build()
     {
-        // get logs path
-        $logsDir = $this->getSupervisorFolder('logs');
+        $this->createPathDirectories();
 
-        // get dumped config path
-        $dumpedConfigPath = $this->getSupervisorFolder('dumpedConfig/supervisor');
-
-        // clean files dumped
-        foreach (new \DirectoryIterator($dumpedConfigPath) as $item) {
+        // remove old worker configuration files
+        /** @var \SplFileInfo $item */
+        foreach (new \DirectoryIterator($this->paths['worker_configuration_directory']) as $item) {
             if ($item->isDir()) {
                 continue;
             }
@@ -79,46 +91,10 @@ class RabbitMqSupervisor
         }
 
         // generate program configuration files for all consumers
-        foreach (array_keys($this->consumers) as $name) {
-            $this->supervisor->genProgrammConf(
-                $name,
-                array(
-                    'name' => $name,
-                    'command' => sprintf('rabbitmq:consumer -m %d %s', 250, $name),
-                    'kernelRootDir' => $this->kernelRootDir,
-                    'logsDir' => $logsDir,
-                    'numprocs' => 1,
-                    'options' => array(
-                        'stopasgroup' => 'true',
-                        'autorestart' => 'true',
-                        'startsecs' => '2',
-                        'stopwaitsecs' => '60',
-                    )
-                ),
-                'RabbitMqSupervisorBundle:Supervisor:program.conf.twig'
-            );
-        }
+        $this->generateWorkerConfigurations(array_keys($this->consumers), $this->commands['rabbitmq_consumer']);
 
         // generate program configuration files for all multiple consumers
-        foreach (array_keys($this->multipleConsumers) as $name) {
-            $this->supervisor->genProgrammConf(
-                $name,
-                array(
-                    'name' => $name,
-                    'command' => sprintf('rabbitmq:multiple-consumer -m %d %s', 250, $name),
-                    'kernelRootDir' => $this->kernelRootDir,
-                    'logsDir' => $logsDir,
-                    'numprocs' => 1,
-                    'options' => array(
-                        'stopasgroup' => 'true',
-                        'autorestart' => 'true',
-                        'startsecs' => '2',
-                        'stopwaitsecs' => '60',
-                    )
-                ),
-                'RabbitMqSupervisorBundle:Supervisor:program.conf.twig'
-            );
-        }
+        $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer']);
 
         // start supervisor and reload configuration
         $this->start();
@@ -228,7 +204,7 @@ class RabbitMqSupervisor
      */
     private function getSupervisorPid() {
 
-        $pidPath = sprintf('%s/supervisord.pid', $this->getSupervisorFolder('pid'));
+        $pidPath = $this->paths['pid_file'];
 
         $pid = null;
         if (is_file($pidPath) && is_readable($pidPath)) {
@@ -238,18 +214,51 @@ class RabbitMqSupervisor
         return $pid;
     }
 
-    /**
-     * Get supervisor folder and create it if missing
-     * @param string $folder
-     * @param int $mode
-     * @return string
-     */
-    private function getSupervisorFolder($folder, $mode=0777)
-    {
-        $supervisorFolder = sprintf('%s/'.$folder, $this->supervisorDirectoryWorkspace);
-        if(!file_exists($supervisorFolder)) {
-            mkdir($supervisorFolder, $mode, true);
+    private function createPathDirectories() {
+        foreach ($this->paths as $path) {
+            if ('/' !== substr($path, -1, 1)) {
+                $path = dirname($path);
+            }
+
+            if (!is_dir($path)) {
+                mkdir($path, 0755, true);
+            }
         }
-        return $supervisorFolder;
+    }
+
+    private function generateWorkerConfigurations($names, $command)
+    {
+        foreach ($names as $name) {
+            $this->generateWorkerConfiguration(
+                $name,
+                array(
+                    'name' => $name,
+                    'command' => sprintf($command, 250, $name),
+                    'kernelRootDir' => $this->kernelRootDir,
+                    'workerOutputLog' => $this->paths['worker_output_log_file'],
+                    'workerErrorLog' => $this->paths['worker_error_log_file'],
+                    'numprocs' => 1,
+                    'options' => array(
+                        'stopasgroup' => 'true',
+                        'autorestart' => 'true',
+                        'startsecs' => '2',
+                        'stopwaitsecs' => '60',
+                    )
+                )
+            );
+        }
+    }
+
+    /**
+     * @param string $fileName file in app/supervisor dir
+     * @param array $vars
+     */
+    public function generateWorkerConfiguration($fileName, $vars)
+    {
+        $content = $this->templating->render('RabbitMqSupervisorBundle:Supervisor:program.conf.twig', $vars);
+        file_put_contents(
+            sprintf('%s%s.conf', $this->paths['worker_configuration_directory'], $fileName),
+            $content
+        );
     }
 }

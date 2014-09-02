@@ -1,10 +1,10 @@
 {% extends 'SupervisorBundle::programm.conf.twig' %}
 
-{% block cmd %}php {{ kernelRootDir }}/console {{ command }} {% if 'prod' in app.environment %}--no-debug {% endif %}-e {{ app.environment }}{% endblock cmd %}
+{% block cmd %}php {{ kernelRootDir }}/console {{ command }} --env={{ app.environment }}{% endblock cmd %}
 
 {% block options %}
 {% for name, value in options %}{{ name }}={{ value }}
 {% endfor %}
-stdout_logfile={{ logsDir }}/stdout.log
-stderr_logfile={{ logsDir }}/stderr.log
+stdout_logfile={{ workerOutputLog }}
+stderr_logfile={{ workerErrorLog }}
 {% endblock options %}
