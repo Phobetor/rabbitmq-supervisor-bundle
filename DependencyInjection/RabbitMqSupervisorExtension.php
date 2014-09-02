@@ -25,7 +25,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
         $loader->load('services.yml');
 
         $container->setParameter('phobetor_rabbitmq_supervisor.paths', $config['paths']);
-        $container->setParameter('phobetor_rabbitmq_supervisor.workspace', $config['paths']['workspace']);
+        $container->setParameter('phobetor_rabbitmq_supervisor.workspace', $config['paths']['workspace_directory']);
         $container->setParameter('phobetor_rabbitmq_supervisor.commands', $config['commands']);
     }
 
