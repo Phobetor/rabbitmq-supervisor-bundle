@@ -20,6 +20,10 @@ class Configuration  implements ConfigurationInterface
 
         $rootNode = $tree->root('rabbit_mq_supervisor');
 
+        $rootNode
+            ->children()
+                ->scalarNode('supervisor_instance_identifier')->defaultValue('symfony2')->end()
+            ->end();
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
 
@@ -40,6 +44,7 @@ class Configuration  implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('workspace_directory')             ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/')->end()
+                        ->scalarNode('configuration_file')              ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
                         ->scalarNode('pid_file')                        ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
                         ->scalarNode('sock_file')                       ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
                         ->scalarNode('log_file')                        ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.log')->end()

@@ -2,7 +2,6 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\Services;
 
-use Ivan1986\SupervisorBundle\Service\Supervisor;
 use Symfony\Component\Templating\EngineInterface;
 
 /**
@@ -11,7 +10,7 @@ use Symfony\Component\Templating\EngineInterface;
 class RabbitMqSupervisor
 {
     /**
-     * @var \Ivan1986\SupervisorBundle\Service\Supervisor
+     * @var \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor
      */
     private $supervisor;
 
@@ -48,15 +47,13 @@ class RabbitMqSupervisor
     /**
      * Initialize Handler
      *
-     * @param \Ivan1986\SupervisorBundle\Service\Supervisor $supervisor
+     * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
      * @param \Symfony\Component\Templating\EngineInterface $templating
      * @param string $kernelRootDir
      * @param array $paths
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
-     *
-     * @return \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor
      */
     public function __construct(Supervisor $supervisor, EngineInterface $templating, $kernelRootDir, array $paths, array $commands, $consumers, $multipleConsumers)
     {
@@ -140,7 +137,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Stop supervisord and all processes
+     * Start supervisord and all processes
      */
     public function start()
     {
@@ -297,6 +294,6 @@ class RabbitMqSupervisor
      */
     private function createSupervisorConfigurationFilePath()
     {
-        return sprintf('%ssupervisord.conf', $this->paths['workspace_directory']);
+        return $this->paths['configuration_file'];
     }
 }
