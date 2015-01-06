@@ -70,11 +70,23 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Build supervisor configuration for all consumer daemons
+     * Build supervisor configuration
+     */
+    public function init()
+    {
+        $this->generateSupervisorConfiguration();
+    }
+
+    /**
+     * Build all supervisor worker configuration files
      */
     public function build()
     {
         $this->createPathDirectories();
+
+        if (!is_file($this->createSupervisorConfigurationFilePath())) {
+            $this->generateSupervisorConfiguration();
+        }
 
         // remove old worker configuration files
         /** @var \SplFileInfo $item */
@@ -226,6 +238,23 @@ class RabbitMqSupervisor
         }
     }
 
+    public function generateSupervisorConfiguration()
+    {
+        $content = $this->templating->render(
+            'RabbitMqSupervisorBundle:Supervisor:supervisord.conf.twig',
+            array(
+                'pidFile' => $this->paths['pid_file'],
+                'sockFile' => $this->paths['sock_file'],
+                'logFile' => $this->paths['log_file'],
+                'workerConfigurationDirectory' => $this->paths['worker_configuration_directory'],
+            )
+        );
+        file_put_contents(
+            $this->createSupervisorConfigurationFilePath(),
+            $content
+        );
+    }
+
     private function generateWorkerConfigurations($names, $command)
     {
         foreach ($names as $name) {
@@ -261,5 +290,13 @@ class RabbitMqSupervisor
             sprintf('%s%s.conf', $this->paths['worker_configuration_directory'], $fileName),
             $content
         );
+    }
+
+    /**
+     * @return string
+     */
+    private function createSupervisorConfigurationFilePath()
+    {
+        return sprintf('%ssupervisord.conf', $this->paths['workspace_directory']);
     }
 }
