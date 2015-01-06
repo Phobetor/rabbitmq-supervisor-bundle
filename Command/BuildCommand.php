@@ -12,7 +12,7 @@ class BuildCommand extends ContainerAwareCommand
     {
         $this
             ->setName('rabbitmq-supervisor:build')
-            ->setDescription('Build supervisor configuration for all RabbitMQ consumer.')
+            ->setDescription('Build supervisor worker configuration for all RabbitMQ consumer.')
         ;
     }
 

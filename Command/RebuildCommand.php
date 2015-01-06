@@ -12,7 +12,7 @@ class RebuildCommand extends ContainerAwareCommand
     {
         $this
             ->setName('rabbitmq-supervisor:rebuild')
-            ->setDescription('Stop supervisord, rebuild supervisor configuration for all RabbitMQ consumer and start supervisord again.')
+            ->setDescription('Stop supervisord, rebuild supervisor worker configuration for all RabbitMQ consumer and start supervisord again.')
         ;
     }
 
