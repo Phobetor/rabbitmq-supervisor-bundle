@@ -13,6 +13,7 @@ services:
             - %phobetor_rabbitmq_supervisor.commands%
             - %phobetor_rabbitmq_supervisor.consumers%
             - %phobetor_rabbitmq_supervisor.multiple_consumers%
+            - %phobetor_rabbitmq_supervisor.worker_count%
 
     phobetor_rabbitmq_supervisor.supervisor_service:
         class: %phobetor_rabbitmq_supervisor.supervisor_service.class%

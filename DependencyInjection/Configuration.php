@@ -22,6 +22,7 @@ class Configuration  implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('worker_count')->defaultValue(1)->end()
                 ->scalarNode('supervisor_instance_identifier')->defaultValue('symfony2')->end()
             ->end();
         $this->addPaths($rootNode);
@@ -51,7 +52,6 @@ class Configuration  implements ConfigurationInterface
                         ->scalarNode('worker_configuration_directory')  ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/worker/')->end()
                         ->scalarNode('worker_output_log_file')          ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
                         ->scalarNode('worker_error_log_file')           ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
-                        ->scalarNode('worker_count')                    ->defaultValue(1)->end()
                     ->end()
                 ->end()
             ->end()
