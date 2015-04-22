@@ -263,7 +263,7 @@ class RabbitMqSupervisor
                     'kernelRootDir' => $this->kernelRootDir,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
-                    'numprocs' => 1,
+                    'numprocs' => $this->paths['worker_count'],
                     'options' => array(
                         'startsecs' => '2',
                         'autorestart' => 'true',
