@@ -48,10 +48,10 @@ Add the bundle to your project’s `AppKernel`:
 
 public function registerBundles()
 {
-    $bundles = array(
+    $bundles = [
         // […]
         new Phobetor\RabbitMqSupervisorBundle\RabbitMqSupervisorBundle(),
-    );
+    ];
 }
 ```
 
