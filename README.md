@@ -81,6 +81,7 @@ app/supervisor/
 All the paths and commands can be changed in `app/config/config.yml`:
 ```yml
 rabbit_mq_supervisor:
+    worker_count:                       1 # number of workers per queue
     supervisor_instance_identifier:     instance_name
     paths:
         workspace_directory:            /path/to/workspace/
