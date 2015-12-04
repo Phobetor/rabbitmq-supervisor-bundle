@@ -24,6 +24,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        $container->setParameter('phobetor_rabbitmq_supervisor.worker_count', $config['worker_count']);
         $container->setParameter('phobetor_rabbitmq_supervisor.supervisor_instance_identifier', $config['supervisor_instance_identifier']);
         $container->setParameter('phobetor_rabbitmq_supervisor.paths', $config['paths']);
         $container->setParameter('phobetor_rabbitmq_supervisor.workspace', $config['paths']['workspace_directory']);
