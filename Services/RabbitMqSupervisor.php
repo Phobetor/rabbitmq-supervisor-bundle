@@ -45,6 +45,11 @@ class RabbitMqSupervisor
     private $multipleConsumers;
 
     /**
+     * @var int
+     */
+    private $workerCount;
+
+    /**
      * Initialize Handler
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
@@ -54,8 +59,9 @@ class RabbitMqSupervisor
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
+     * @param int $workerCount
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, $kernelRootDir, array $paths, array $commands, $consumers, $multipleConsumers)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, $kernelRootDir, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount)
     {
         $this->supervisor = $supervisor;
         $this->templating = $templating;
@@ -64,6 +70,7 @@ class RabbitMqSupervisor
         $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
+        $this->workerCount = $workerCount;
     }
 
     /**
@@ -263,7 +270,7 @@ class RabbitMqSupervisor
                     'kernelRootDir' => $this->kernelRootDir,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
-                    'numprocs' => 1,
+                    'numprocs' => $this->workerCount,
                     'options' => array(
                         'startsecs' => '2',
                         'autorestart' => 'true',

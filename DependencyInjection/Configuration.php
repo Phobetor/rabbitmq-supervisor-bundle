@@ -22,6 +22,7 @@ class Configuration  implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('worker_count')->defaultValue(1)->end()
                 ->scalarNode('supervisor_instance_identifier')->defaultValue('symfony2')->end()
             ->end();
         $this->addPaths($rootNode);
