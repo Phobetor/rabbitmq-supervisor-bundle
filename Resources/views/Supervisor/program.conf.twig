@@ -4,8 +4,8 @@ command={% block cmd %}php {{ executablePath }} {{ command }} --env={{ app.envir
 process_name=%(program_name)s%(process_num)02d
 numprocs={{ numprocs|default('1') }}
 {% block options %}
-    {% for name, value in options %}{{ name }}={{ value }}
-    {% endfor %}
-    stdout_logfile={{ workerOutputLog }}
-    stderr_logfile={{ workerErrorLog }}
+{% for name, value in options %}{{ name }}={{ value }}
+{% endfor %}
+stdout_logfile={{ workerOutputLog }}
+stderr_logfile={{ workerErrorLog }}
 {% endblock options %}
