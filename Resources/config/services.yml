@@ -8,7 +8,6 @@ services:
         arguments:
             - "@phobetor_rabbitmq_supervisor.supervisor_service"
             - "@templating"
-            - "%kernel.root_dir%"
             - "%phobetor_rabbitmq_supervisor.paths%"
             - "%phobetor_rabbitmq_supervisor.commands%"
             - "%phobetor_rabbitmq_supervisor.consumers%"

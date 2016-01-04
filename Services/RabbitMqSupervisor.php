@@ -20,11 +20,6 @@ class RabbitMqSupervisor
     private $templating;
 
     /**
-     * @var string
-     */
-    private $kernelRootDir;
-
-    /**
      * @var array
      */
     private $paths;
@@ -54,18 +49,16 @@ class RabbitMqSupervisor
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
      * @param \Symfony\Component\Templating\EngineInterface $templating
-     * @param string $kernelRootDir
      * @param array $paths
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
      * @param int $workerCount
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, $kernelRootDir, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount)
     {
         $this->supervisor = $supervisor;
         $this->templating = $templating;
-        $this->kernelRootDir = $kernelRootDir;
         $this->paths = $paths;
         $this->commands = $commands;
         $this->consumers = $consumers;
@@ -261,13 +254,21 @@ class RabbitMqSupervisor
 
     private function generateWorkerConfigurations($names, $command)
     {
+        if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
+            $executablePath = $_SERVER["SCRIPT_FILENAME"];
+        }
+        else {
+            $executablePath = sprintf('%s/%s', getcwd(), $_SERVER["SCRIPT_FILENAME"]);
+        }
+        $executablePath = realpath($executablePath);
+
         foreach ($names as $name) {
             $this->generateWorkerConfiguration(
                 $name,
                 array(
                     'name' => $name,
                     'command' => sprintf($command, 250, $name),
-                    'kernelRootDir' => $this->kernelRootDir,
+                    'executablePath' => $executablePath,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
                     'numprocs' => $this->workerCount,
