@@ -260,7 +260,6 @@ class RabbitMqSupervisor
         else {
             $executablePath = sprintf('%s/%s', getcwd(), $_SERVER["SCRIPT_FILENAME"]);
         }
-        $executablePath = realpath($executablePath);
 
         foreach ($names as $name) {
             $this->generateWorkerConfiguration(
