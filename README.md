@@ -3,11 +3,11 @@ RabbitMQ supervisor bundle
 
 [![Latest Stable Version](https://poser.pugx.org/phobetor/rabbitmq-supervisor-bundle/v/stable.png)](https://packagist.org/packages/phobetor/rabbitmq-supervisor-bundle) [![License](https://poser.pugx.org/phobetor/rabbitmq-supervisor-bundle/license.png)](https://packagist.org/packages/phobetor/rabbitmq-supervisor-bundle)
 
-Symfony 2 bundle to automatically create and update supervisor configurations for `oldsound/rabbitmq-bundle` RabbitMQ consumer daemons.
+Symfony bundle to automatically create and update supervisor configurations for `php-amqplib/rabbitmq-bundle` (and its predecessor `oldsound/rabbitmq-bundle`) RabbitMQ consumer daemons.
 
 ## In a nutshell | tl;dr
 
-If you use `oldsound/rabbitmq-bundle` to handle the communication with RabbitMQ, just add this bundle and run
+If you use `php-amqplib/rabbitmq-bundle` to handle the communication with RabbitMQ, just add this bundle and run
 ```sh
 app/console rabbitmq-supervisor:rebuild
 ```
