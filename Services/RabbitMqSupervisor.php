@@ -100,10 +100,10 @@ class RabbitMqSupervisor
         }
 
         // generate program configuration files for all consumers
-        $this->generateWorkerConfigurations(array_keys($this->consumers), $this->commands['rabbitmq_consumer']);
+        $this->generateWorkerConfigurations(array_keys($this->consumers), $this->commands['rabbitmq_consumer'], $this->commands['max_messages']);
 
         // generate program configuration files for all multiple consumers
-        $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer']);
+        $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer'], $this->commands['max_messages']);
 
         // start supervisor and reload configuration
         $this->start();
@@ -252,7 +252,7 @@ class RabbitMqSupervisor
         );
     }
 
-    private function generateWorkerConfigurations($names, $command)
+    private function generateWorkerConfigurations($names, $command, $maxMessages = 250)
     {
         if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
             $executablePath = $_SERVER["SCRIPT_FILENAME"];
@@ -266,7 +266,7 @@ class RabbitMqSupervisor
                 $name,
                 array(
                     'name' => $name,
-                    'command' => sprintf($command, 250, $name),
+                    'command' => sprintf($command, $maxMessages, $name),
                     'executablePath' => $executablePath,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
