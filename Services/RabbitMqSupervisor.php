@@ -15,7 +15,7 @@ class RabbitMqSupervisor
     private $supervisor;
 
     /**
-     * @var \Symfony\Component\Templating\EngineInterface $templating
+     * @var \Symfony\Component\Templating\EngineInterface
      */
     private $templating;
 
@@ -45,17 +45,22 @@ class RabbitMqSupervisor
     private $workerCount;
 
     /**
-     * Initialize Handler
+     * @var array
+     */
+    private $workers;
+
+    /**
+     * Initialize Handler.
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
-     * @param \Symfony\Component\Templating\EngineInterface $templating
-     * @param array $paths
-     * @param array $commands
-     * @param array $consumers
-     * @param array $multipleConsumers
-     * @param int $workerCount
+     * @param \Symfony\Component\Templating\EngineInterface          $templating
+     * @param array                                                  $paths
+     * @param array                                                  $commands
+     * @param array                                                  $consumers
+     * @param array                                                  $multipleConsumers
+     * @param int                                                    $workerCount
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount, $workers)
     {
         $this->supervisor = $supervisor;
         $this->templating = $templating;
@@ -64,10 +69,11 @@ class RabbitMqSupervisor
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
         $this->workerCount = $workerCount;
+        $this->workers = $workers;
     }
 
     /**
-     * Build supervisor configuration
+     * Build supervisor configuration.
      */
     public function init()
     {
@@ -75,7 +81,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Build all supervisor worker configuration files
+     * Build all supervisor worker configuration files.
      */
     public function build()
     {
@@ -111,7 +117,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Stop, build configuration for and start supervisord
+     * Stop, build configuration for and start supervisord.
      */
     public function rebuild()
     {
@@ -120,7 +126,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Stop and start supervisord to force all processes to restart
+     * Stop and start supervisord to force all processes to restart.
      */
     public function restart()
     {
@@ -129,7 +135,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Stop supervisord and all processes
+     * Stop supervisord and all processes.
      */
     public function stop()
     {
@@ -137,7 +143,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Start supervisord and all processes
+     * Start supervisord and all processes.
      */
     public function start()
     {
@@ -145,7 +151,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Send -HUP to supervisord to gracefully restart all processes
+     * Send -HUP to supervisord to gracefully restart all processes.
      */
     public function hup()
     {
@@ -153,10 +159,10 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Send kill signal to supervisord
+     * Send kill signal to supervisord.
      *
      * @param string $signal
-     * @param bool $waitForProcessToDisappear
+     * @param bool   $waitForProcessToDisappear
      */
     public function kill($signal = '', $waitForProcessToDisappear = false)
     {
@@ -177,7 +183,7 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Wait for supervisord process to disappear
+     * Wait for supervisord process to disappear.
      */
     public function wait()
     {
@@ -190,12 +196,14 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Check if a process with the given pid is running
+     * Check if a process with the given pid is running.
      *
      * @param int $pid
+     *
      * @return bool
      */
-    private function isProcessRunning($pid) {
+    private function isProcessRunning($pid)
+    {
         $state = array();
         exec(sprintf('ps %d', $pid), $state);
 
@@ -207,23 +215,24 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Determines the supervisord process id
+     * Determines the supervisord process id.
      *
      * @return null|int
      */
-    private function getSupervisorPid() {
-
+    private function getSupervisorPid()
+    {
         $pidPath = $this->paths['pid_file'];
 
         $pid = null;
         if (is_file($pidPath) && is_readable($pidPath)) {
-            $pid = (int)file_get_contents($pidPath);
+            $pid = (int) file_get_contents($pidPath);
         }
 
         return $pid;
     }
 
-    private function createPathDirectories() {
+    private function createPathDirectories()
+    {
         foreach ($this->paths as $path) {
             if ('/' !== substr($path, -1, 1)) {
                 $path = dirname($path);
@@ -252,13 +261,17 @@ class RabbitMqSupervisor
         );
     }
 
+    private function getWorkerCount($name)
+    {
+        return isset($this->workers[$name]) ? $this->workers[$name]['worker_count'] : $this->workerCount;
+    }
+
     private function generateWorkerConfigurations($names, $command)
     {
-        if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
-            $executablePath = $_SERVER["SCRIPT_FILENAME"];
-        }
-        else {
-            $executablePath = sprintf('%s/%s', getcwd(), $_SERVER["SCRIPT_FILENAME"]);
+        if (0 === strpos($_SERVER['SCRIPT_FILENAME'], '/')) {
+            $executablePath = $_SERVER['SCRIPT_FILENAME'];
+        } else {
+            $executablePath = sprintf('%s/%s', getcwd(), $_SERVER['SCRIPT_FILENAME']);
         }
 
         foreach ($names as $name) {
@@ -270,14 +283,14 @@ class RabbitMqSupervisor
                     'executablePath' => $executablePath,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
-                    'numprocs' => $this->workerCount,
+                    'numprocs' => $this->getWorkerCount($name),
                     'options' => array(
                         'startsecs' => '2',
                         'autorestart' => 'true',
                         'stopsignal' => 'INT',
                         'stopasgroup' => 'true',
                         'stopwaitsecs' => '60',
-                    )
+                    ),
                 )
             );
         }
@@ -285,7 +298,7 @@ class RabbitMqSupervisor
 
     /**
      * @param string $fileName file in app/supervisor dir
-     * @param array $vars
+     * @param array  $vars
      */
     public function generateWorkerConfiguration($fileName, $vars)
     {
