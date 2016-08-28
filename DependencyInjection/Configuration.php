@@ -73,6 +73,7 @@ class Configuration  implements ConfigurationInterface
                     ->children()
                         ->scalarNode('rabbitmq_consumer')->defaultValue('rabbitmq:consumer -m %%1$d %%2$s')->end()
                         ->scalarNode('rabbitmq_multiple_consumer')->defaultValue('rabbitmq:multiple-consumer -m %%1$d %%2$s')->end()
+                        ->integerNode('max_messages')->defaultValue('250')->end()
                     ->end()
                 ->end()
             ->end()
