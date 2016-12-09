@@ -45,6 +45,11 @@ class RabbitMqSupervisor
     private $workerCount;
 
     /**
+     * @var array
+     */
+    private $workerOptions;
+
+    /**
      * Initialize Handler
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
@@ -54,8 +59,9 @@ class RabbitMqSupervisor
      * @param array $consumers
      * @param array $multipleConsumers
      * @param int $workerCount
+     * @param array $workerOptions
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount, array $workerOptions = array())
     {
         $this->supervisor = $supervisor;
         $this->templating = $templating;
@@ -64,6 +70,7 @@ class RabbitMqSupervisor
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
         $this->workerCount = $workerCount;
+        $this->workerOptions = $workerOptions;
     }
 
     /**
@@ -271,13 +278,7 @@ class RabbitMqSupervisor
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
                     'numprocs' => $this->workerCount,
-                    'options' => array(
-                        'startsecs' => '2',
-                        'autorestart' => 'true',
-                        'stopsignal' => 'INT',
-                        'stopasgroup' => 'true',
-                        'stopwaitsecs' => '60',
-                    )
+                    'options' => $this->transformBoolsToStrings($this->workerOptions),
                 )
             );
         }
@@ -302,5 +303,26 @@ class RabbitMqSupervisor
     private function createSupervisorConfigurationFilePath()
     {
         return $this->paths['configuration_file'];
+    }
+
+    /**
+     * Transform bool array values to string representation.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    private function transformBoolsToStrings(array $options)
+    {
+        $transformedOptions = array();
+        foreach ($options as $key => $value) {
+            if (is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            }
+
+            $transformedOptions[$key] = $value;
+        }
+
+        return $transformedOptions;
     }
 }

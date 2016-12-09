@@ -27,6 +27,7 @@ class Configuration  implements ConfigurationInterface
             ->end();
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
+        $this->addWorkerOptions($rootNode);
 
         return $tree;
     }
@@ -74,6 +75,38 @@ class Configuration  implements ConfigurationInterface
                         ->scalarNode('rabbitmq_consumer')->defaultValue('rabbitmq:consumer -m %%1$d %%2$s')->end()
                         ->scalarNode('rabbitmq_multiple_consumer')->defaultValue('rabbitmq:multiple-consumer -m %%1$d %%2$s')->end()
                         ->integerNode('max_messages')->defaultValue('250')->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * Add worker options configuration
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    protected function addWorkerOptions(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('worker_options')
+                ->addDefaultsIfNotSet()
+                    ->children()
+                        ->integerNode('startsecs')
+                            ->min(0)
+                            ->defaultValue(2)
+                        ->end()
+                        ->booleanNode('autorestart')->defaultTrue()->end()
+                        ->enumNode('stopsignal')
+                            ->values(array('TERM', 'INT', 'KILL'))
+                            ->defaultValue('INT')
+                        ->end()
+                        ->booleanNode('stopasgroup')->defaultTrue()->end()
+                        ->integerNode('stopwaitsecs')
+                            ->min(0)
+                            ->defaultValue(60)
+                        ->end()
                     ->end()
                 ->end()
             ->end()

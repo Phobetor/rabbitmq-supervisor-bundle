@@ -95,6 +95,12 @@ rabbit_mq_supervisor:
     commands:
         rabbitmq_consumer:              user-specific-command:consumer -m %%1$d %%2$s
         rabbitmq_multiple_consumer:     user-specific-command:multiple-consumer -m %%1$d %%2$s
+    worker_options:
+        startsecs:    2
+        autorestart:  true
+        stopsignal:   INT
+        stopasgroup:  true
+        stopwaitsecs: 60
 ```
 
 ## Usage
