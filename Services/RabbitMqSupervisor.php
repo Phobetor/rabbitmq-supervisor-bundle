@@ -15,7 +15,7 @@ class RabbitMqSupervisor
     private $supervisor;
 
     /**
-     * @var \Symfony\Component\Templating\EngineInterface $templating
+     * @var \Symfony\Component\Templating\EngineInterface
      */
     private $templating;
 
@@ -261,27 +261,34 @@ class RabbitMqSupervisor
             $executablePath = sprintf('%s/%s', getcwd(), $_SERVER["SCRIPT_FILENAME"]);
         }
 
-        // build flags from general consumer configuration
-        $flags = array();
-        if (!empty($this->config['consumer']['general']['messages'])) {
-            $flags['messages'] = sprintf('--messages=%d', $this->config['consumer']['general']['messages']);
-        }
-        if (!empty($this->config['consumer']['general']['memory_limit'])) {
-            $flags['memory-limit'] = sprintf('--memory-limit=%d', $this->config['consumer']['general']['memory_limit']);
-        }
-        if (!empty($this->config['consumer']['general']['debug'])) {
-            $flags['debug'] = '--debug';
-        }
-        if (!empty($this->config['consumer']['general']['without_signals'])) {
-            $flags['without-signals'] = '--without-signals';
-        }
-
-        $workerCount = 1;
-        if (!empty($this->config['consumer']['general']['worker']['count'])) {
-            $workerCount = (int)$this->config['consumer']['general']['worker']['count'];
-        }
-
         foreach ($names as $name) {
+            // build flags from consumer configuration
+            $flags = array();
+            $messages = $this->getConsumerOption($name, 'messages');
+            if (!empty($messages)) {
+                $flags['messages'] = sprintf('--messages=%d', $messages);
+            }
+            $memoryLimit = $this->getConsumerOption($name, 'memory_limit');
+            if (!empty($memoryLimit)) {
+                $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
+            }
+            $debug = $this->getConsumerOption($name, 'debug');
+            if (!empty($debug)) {
+                $flags['debug'] = '--debug';
+            }
+            $withoutSignals = $this->getConsumerOption($name, 'without_signals');
+            if (!empty($withoutSignals)) {
+                $flags['without-signals'] = '--without-signals';
+            }
+
+            $workerCount = $this->getConsumerWorkerOption($name, 'count');
+            if (!empty($workerCount)) {
+                $workerCount = (int)$workerCount;
+            }
+            else {
+                $workerCount = 1;
+            }
+
             $this->generateWorkerConfiguration(
                 $name,
                 array(
@@ -301,6 +308,76 @@ class RabbitMqSupervisor
                 )
             );
         }
+    }
+
+    private function getConsumerOption($consumer, $key) {
+        $option = $this->getIndividualConsumerOption($consumer, $key);
+        if (null !== $option) {
+            return $option;
+        }
+
+        return $this->getGeneralConsumerOption($key);
+    }
+
+    private function getIndividualConsumerOption($consumer, $key) {
+        if (!array_key_exists($consumer, $this->config['consumer']['individual'])) {
+            return null;
+        }
+
+        if (!array_key_exists($key, $this->config['consumer']['individual'][$consumer])) {
+            return null;
+        }
+
+        return $this->config['consumer']['individual'][$consumer][$key];
+    }
+
+    private function getGeneralConsumerOption($key) {
+        if (!array_key_exists($key, $this->config['consumer']['general'])) {
+            return null;
+        }
+
+        return $this->config['consumer']['general'][$key];
+    }
+
+    private function getConsumerWorkerOption($consumer, $key) {
+        $option = $this->getIndividualConsumerWorkerOption($consumer, $key);
+        if (null !== $option) {
+            return $option;
+        }
+
+        return $this->getGeneralConsumerWorkerOption($key);
+    }
+
+    private function getIndividualConsumerWorkerOption($consumer, $key) {
+        if (empty($this->config['consumer']['individual'])) {
+            return null;
+        }
+
+        if (!array_key_exists($consumer, $this->config['consumer']['individual'])) {
+            return null;
+        }
+
+        if (!array_key_exists('worker', $this->config['consumer']['individual'][$consumer])) {
+            return null;
+        }
+
+        if (!array_key_exists($key, $this->config['consumer']['individual'][$consumer]['worker'])) {
+            return null;
+        }
+
+        return $this->config['consumer']['individual'][$consumer]['worker'][$key];
+    }
+
+    private function getGeneralConsumerWorkerOption($key) {
+        if (!array_key_exists('worker', $this->config['consumer']['general'])) {
+            return null;
+        }
+
+        if (!array_key_exists($key, $this->config['consumer']['general']['worker'])) {
+            return null;
+        }
+
+        return $this->config['consumer']['general']['worker'][$key];
     }
 
     /**

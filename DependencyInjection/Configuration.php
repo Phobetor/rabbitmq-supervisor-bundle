@@ -45,14 +45,14 @@ class Configuration  implements ConfigurationInterface
                 ->arrayNode('paths')
                 ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('workspace_directory')             ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/')->end()
-                        ->scalarNode('configuration_file')              ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
-                        ->scalarNode('pid_file')                        ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
-                        ->scalarNode('sock_file')                       ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
-                        ->scalarNode('log_file')                        ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.log')->end()
-                        ->scalarNode('worker_configuration_directory')  ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/worker/')->end()
-                        ->scalarNode('worker_output_log_file')          ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
-                        ->scalarNode('worker_error_log_file')           ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
+                        ->scalarNode('workspace_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/')->end()
+                        ->scalarNode('configuration_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
+                        ->scalarNode('pid_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
+                        ->scalarNode('sock_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
+                        ->scalarNode('log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.log')->end()
+                        ->scalarNode('worker_configuration_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/worker/')->end()
+                        ->scalarNode('worker_output_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
+                        ->scalarNode('worker_error_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
                     ->end()
                 ->end()
             ->end()
@@ -81,7 +81,7 @@ class Configuration  implements ConfigurationInterface
     }
 
     /**
-     * Add general consumer configuration
+     * Add general and individual consumer configuration
      *
      * @param ArrayNodeDefinition $node
      */
@@ -95,6 +95,12 @@ class Configuration  implements ConfigurationInterface
         $general = $consumerChildren
                         ->arrayNode('general');
         $this->addConsumerConfiguration($general);
+
+        $individualPrototype = $consumerChildren
+                        ->arrayNode('individual')
+                            ->useAttributeAsKey('consumer')
+                            ->prototype('array');
+        $this->addConsumerConfiguration($individualPrototype);
     }
 
     /**
