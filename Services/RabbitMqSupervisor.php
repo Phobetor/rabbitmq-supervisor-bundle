@@ -266,13 +266,13 @@ class RabbitMqSupervisor
         if (!empty($this->config['consumer']['general']['messages'])) {
             $flags['messages'] = sprintf('--messages=%d', $this->config['consumer']['general']['messages']);
         }
-        if (!empty($this->config['consumer']['general']['memory-limit'])) {
-            $flags['memory-limit'] = sprintf('--memory-limit=%d', $this->config['consumer']['general']['memory-limit']);
+        if (!empty($this->config['consumer']['general']['memory_limit'])) {
+            $flags['memory-limit'] = sprintf('--memory-limit=%d', $this->config['consumer']['general']['memory_limit']);
         }
         if (!empty($this->config['consumer']['general']['debug'])) {
             $flags['debug'] = '--debug';
         }
-        if (!empty($this->config['consumer']['general']['without-signals'])) {
+        if (!empty($this->config['consumer']['general']['without_signals'])) {
             $flags['without-signals'] = '--without-signals';
         }
 
