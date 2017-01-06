@@ -7,7 +7,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
- * This bundle uses the rabbit mq bundle's configuration.
+ * This bundle uses the rabbit mq bundle's configuration
  */
 class Configuration  implements ConfigurationInterface
 {
@@ -28,13 +28,12 @@ class Configuration  implements ConfigurationInterface
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
         $this->addConsumer($rootNode);
-        $this->addWorkers($rootNode);
 
         return $tree;
     }
 
     /**
-     * Add paths configuration.
+     * Add paths configuration
      *
      * @param ArrayNodeDefinition $node
      */
@@ -61,7 +60,7 @@ class Configuration  implements ConfigurationInterface
     }
 
     /**
-     * Add commands configuration.
+     * Add commands configuration
      *
      * @param ArrayNodeDefinition $node
      */
@@ -82,7 +81,7 @@ class Configuration  implements ConfigurationInterface
     }
 
     /**
-     * Add general consumer configuration
+     * Add general and individual consumer configuration
      *
      * @param ArrayNodeDefinition $node
      */
@@ -96,6 +95,12 @@ class Configuration  implements ConfigurationInterface
         $general = $consumerChildren
                         ->arrayNode('general');
         $this->addConsumerConfiguration($general);
+
+        $individualPrototype = $consumerChildren
+                        ->arrayNode('individual')
+                            ->useAttributeAsKey('consumer')
+                            ->prototype('array');
+        $this->addConsumerConfiguration($individualPrototype);
     }
 
     /**
@@ -123,27 +128,6 @@ class Configuration  implements ConfigurationInterface
                     ->children()
                         ->scalarNode('count')
                             ->defaultNull()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-        ;
-    }
-
-    /**
-     * Add commands configuration.
-     *
-     * @param ArrayNodeDefinition $node
-     */
-    protected function addWorkers(ArrayNodeDefinition $node)
-    {
-        $node
-            ->fixXmlConfig('worker')
-            ->children()
-                ->arrayNode('workers')
-                    ->prototype('array')
-                        ->children()
-                            ->scalarNode('worker_count')->end()
                         ->end()
                     ->end()
                 ->end()
