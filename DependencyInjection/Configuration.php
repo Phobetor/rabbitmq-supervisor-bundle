@@ -22,11 +22,12 @@ class Configuration  implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('worker_count')->defaultValue(1)->end()
+                ->scalarNode('worker_count')->defaultNull()->end()
                 ->scalarNode('supervisor_instance_identifier')->defaultValue('symfony2')->end()
             ->end();
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
+        $this->addConsumerConfiguration($rootNode);
 
         return $tree;
     }
@@ -71,9 +72,57 @@ class Configuration  implements ConfigurationInterface
                 ->arrayNode('commands')
                 ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('rabbitmq_consumer')->defaultValue('rabbitmq:consumer -m %%1$d %%2$s')->end()
-                        ->scalarNode('rabbitmq_multiple_consumer')->defaultValue('rabbitmq:multiple-consumer -m %%1$d %%2$s')->end()
-                        ->integerNode('max_messages')->defaultValue('250')->end()
+                        ->scalarNode('rabbitmq_consumer')->defaultValue('rabbitmq:consumer')->end()
+                        ->scalarNode('rabbitmq_multiple_consumer')->defaultValue('rabbitmq:multiple-consumer')->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * Add general consumer configuration
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    protected function addConsumer(ArrayNodeDefinition $node)
+    {
+        $consumerChildren = $node
+            ->children()
+                ->arrayNode('consumer')
+                    ->children();
+
+        $general = $consumerChildren
+                        ->arrayNode('general');
+        $this->addConsumerConfiguration($general);
+    }
+
+    /**
+     * Add consumer configuration
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    protected function addConsumerConfiguration(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->integerNode('messages')
+                    ->defaultNull()
+                ->end()
+                ->integerNode('memory-limit')
+                    ->defaultNull()
+                ->end()
+                ->booleanNode('debug')
+                    ->defaultNull()
+                ->end()
+                ->booleanNode('without-signals')
+                    ->defaultNull()
+                ->end()
+                ->arrayNode('worker')
+                    ->children()
+                        ->scalarNode('count')
+                            ->defaultNull()
+                        ->end()
                     ->end()
                 ->end()
             ->end()

@@ -2,6 +2,7 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -24,7 +25,23 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $container->setParameter('phobetor_rabbitmq_supervisor.worker_count', $config['worker_count']);
+        // check that commands do not contain sprintf specifiers that were required by older versions
+        foreach ($config['commands'] as $command) {
+            if (false !== strpos($command, '%')) {
+                throw new InvalidConfigurationException(sprintf(
+                    'Invalid configuration for path "%s": %s',
+                    'rabbit_mq_supervisor.commands',
+                    'command is no longer allowed to contain sprintf specifiers (e.g. "%1$d")'
+                ));
+            }
+        }
+
+        // take over worker count from old configuration key
+        if (null !== $config['worker_count']) {
+            $config['consumer']['general']['worker']['count'] = $config['worker_count'];
+        }
+
+        $container->setParameter('phobetor_rabbitmq_supervisor.config', array('consumer' => $config['consumer']));
         $container->setParameter('phobetor_rabbitmq_supervisor.supervisor_instance_identifier', $config['supervisor_instance_identifier']);
         $container->setParameter('phobetor_rabbitmq_supervisor.paths', $config['paths']);
         $container->setParameter('phobetor_rabbitmq_supervisor.workspace', $config['paths']['workspace_directory']);

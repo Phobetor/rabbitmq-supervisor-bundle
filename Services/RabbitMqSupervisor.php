@@ -40,9 +40,9 @@ class RabbitMqSupervisor
     private $multipleConsumers;
 
     /**
-     * @var int
+     * @var array
      */
-    private $workerCount;
+    private $config;
 
     /**
      * Initialize Handler
@@ -53,9 +53,9 @@ class RabbitMqSupervisor
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
-     * @param int $workerCount
+     * @param array $config
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $workerCount)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $config)
     {
         $this->supervisor = $supervisor;
         $this->templating = $templating;
@@ -63,7 +63,7 @@ class RabbitMqSupervisor
         $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
-        $this->workerCount = $workerCount;
+        $this->config = $config;
     }
 
     /**
@@ -100,10 +100,10 @@ class RabbitMqSupervisor
         }
 
         // generate program configuration files for all consumers
-        $this->generateWorkerConfigurations(array_keys($this->consumers), $this->commands['rabbitmq_consumer'], $this->commands['max_messages']);
+        $this->generateWorkerConfigurations(array_keys($this->consumers), $this->commands['rabbitmq_consumer']);
 
         // generate program configuration files for all multiple consumers
-        $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer'], $this->commands['max_messages']);
+        $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer']);
 
         // start supervisor and reload configuration
         $this->start();
@@ -252,7 +252,7 @@ class RabbitMqSupervisor
         );
     }
 
-    private function generateWorkerConfigurations($names, $command, $maxMessages = 250)
+    private function generateWorkerConfigurations($names, $command)
     {
         if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
             $executablePath = $_SERVER["SCRIPT_FILENAME"];
@@ -261,16 +261,36 @@ class RabbitMqSupervisor
             $executablePath = sprintf('%s/%s', getcwd(), $_SERVER["SCRIPT_FILENAME"]);
         }
 
+        // build flags from general consumer configuration
+        $flags = array();
+        if (!empty($this->config['consumer']['general']['messages'])) {
+            $flags['messages'] = sprintf('--messages=%d', $this->config['consumer']['general']['messages']);
+        }
+        if (!empty($this->config['consumer']['general']['memory-limit'])) {
+            $flags['memory-limit'] = sprintf('--memory-limit=%d', $this->config['consumer']['general']['memory-limit']);
+        }
+        if (!empty($this->config['consumer']['general']['debug'])) {
+            $flags['debug'] = '--debug';
+        }
+        if (!empty($this->config['consumer']['general']['without-signals'])) {
+            $flags['without-signals'] = '--without-signals';
+        }
+
+        $workerCount = 1;
+        if (!empty($this->config['consumer']['general']['worker']['count'])) {
+            $workerCount = (int)$this->config['consumer']['general']['worker']['count'];
+        }
+
         foreach ($names as $name) {
             $this->generateWorkerConfiguration(
                 $name,
                 array(
                     'name' => $name,
-                    'command' => sprintf($command, $maxMessages, $name),
+                    'command' => sprintf('%s %s %s', $command, $name, implode(' ', $flags)),
                     'executablePath' => $executablePath,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
-                    'numprocs' => $this->workerCount,
+                    'numprocs' => $workerCount,
                     'options' => array(
                         'startsecs' => '2',
                         'autorestart' => 'true',
