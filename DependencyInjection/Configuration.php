@@ -7,7 +7,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
- * This bundle uses the rabbit mq bundle's configuration
+ * This bundle uses the rabbit mq bundle's configuration.
  */
 class Configuration  implements ConfigurationInterface
 {
@@ -28,12 +28,13 @@ class Configuration  implements ConfigurationInterface
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
         $this->addConsumer($rootNode);
+        $this->addWorkers($rootNode);
 
         return $tree;
     }
 
     /**
-     * Add paths configuration
+     * Add paths configuration.
      *
      * @param ArrayNodeDefinition $node
      */
@@ -45,14 +46,14 @@ class Configuration  implements ConfigurationInterface
                 ->arrayNode('paths')
                 ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('workspace_directory')             ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/')->end()
-                        ->scalarNode('configuration_file')              ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
-                        ->scalarNode('pid_file')                        ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
-                        ->scalarNode('sock_file')                       ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
-                        ->scalarNode('log_file')                        ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.log')->end()
-                        ->scalarNode('worker_configuration_directory')  ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/worker/')->end()
-                        ->scalarNode('worker_output_log_file')          ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
-                        ->scalarNode('worker_error_log_file')           ->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
+                        ->scalarNode('workspace_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/')->end()
+                        ->scalarNode('configuration_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
+                        ->scalarNode('pid_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
+                        ->scalarNode('sock_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
+                        ->scalarNode('log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.log')->end()
+                        ->scalarNode('worker_configuration_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/worker/')->end()
+                        ->scalarNode('worker_output_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
+                        ->scalarNode('worker_error_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
                     ->end()
                 ->end()
             ->end()
@@ -60,7 +61,7 @@ class Configuration  implements ConfigurationInterface
     }
 
     /**
-     * Add commands configuration
+     * Add commands configuration.
      *
      * @param ArrayNodeDefinition $node
      */
@@ -122,6 +123,27 @@ class Configuration  implements ConfigurationInterface
                     ->children()
                         ->scalarNode('count')
                             ->defaultNull()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * Add commands configuration.
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    protected function addWorkers(ArrayNodeDefinition $node)
+    {
+        $node
+            ->fixXmlConfig('worker')
+            ->children()
+                ->arrayNode('workers')
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('worker_count')->end()
                         ->end()
                     ->end()
                 ->end()
