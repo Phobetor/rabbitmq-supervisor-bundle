@@ -36,12 +36,26 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
             }
         }
 
-        // take over worker count from old configuration key
-        if (null !== $config['worker_count']) {
-            $config['consumer']['general']['worker']['count'] = $config['worker_count'];
+        $consumer = [];
+        if (!empty($config['consumer'])) {
+            $consumer = $config['consumer'];
         }
 
-        $container->setParameter('phobetor_rabbitmq_supervisor.config', array('consumer' => $config['consumer']));
+        if (empty($consumer['general']['worker'])) {
+            $consumer['general']['worker'] = [];
+        }
+
+        // take over worker count from old configuration key
+        if (null !== $config['worker_count']) {
+            $consumer['general']['worker']['count'] = $config['worker_count'];
+        }
+
+        // set default value of 250 if messages is not net or set to default value
+        if (!array_key_exists('messages', $consumer['general']) || null === $consumer['general']['messages']) {
+            $consumer['general']['messages'] = 250;
+        }
+
+        $container->setParameter('phobetor_rabbitmq_supervisor.config', array('consumer' => $consumer));
         $container->setParameter('phobetor_rabbitmq_supervisor.supervisor_instance_identifier', $config['supervisor_instance_identifier']);
         $container->setParameter('phobetor_rabbitmq_supervisor.paths', $config['paths']);
         $container->setParameter('phobetor_rabbitmq_supervisor.workspace', $config['paths']['workspace_directory']);

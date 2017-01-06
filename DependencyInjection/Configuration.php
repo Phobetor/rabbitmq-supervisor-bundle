@@ -27,7 +27,7 @@ class Configuration  implements ConfigurationInterface
             ->end();
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
-        $this->addConsumerConfiguration($rootNode);
+        $this->addConsumer($rootNode);
 
         return $tree;
     }
