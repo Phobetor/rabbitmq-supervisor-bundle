@@ -115,7 +115,7 @@ rabbit_mq_supervisor:
                 # […]
 ```
 
-### BC break when updating to from v1.* to v2.*
+### BC break when updating from v1.* to v2.*
 If you used custom commands before version 2.0, you need to update them. In most case you can just remove everything
 after the command name.
 
