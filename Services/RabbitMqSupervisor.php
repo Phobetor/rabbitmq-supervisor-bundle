@@ -44,6 +44,8 @@ class RabbitMqSupervisor
      */
     private $config;
 
+
+
     /**
      * Initialize Handler
      *
@@ -399,5 +401,26 @@ class RabbitMqSupervisor
     private function createSupervisorConfigurationFilePath()
     {
         return $this->paths['configuration_file'];
+    }
+
+    /**
+     * Transform bool array values to string representation.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    private function transformBoolsToStrings(array $options)
+    {
+        $transformedOptions = array();
+        foreach ($options as $key => $value) {
+            if (is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            }
+
+            $transformedOptions[$key] = $value;
+        }
+
+        return $transformedOptions;
     }
 }
