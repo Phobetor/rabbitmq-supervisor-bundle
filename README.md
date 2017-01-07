@@ -29,7 +29,7 @@ or manually to `composer.json` file
 ```js
 {
     "require": {
-        "phobetor/rabbitmq-supervisor-bundle": "~1.3"
+        "phobetor/rabbitmq-supervisor-bundle": "~2.0"
     }
 }
 ```
@@ -78,10 +78,9 @@ app/supervisor/
 
 ## Advanced configuration
 
-All the paths and commands can be changed in `app/config/config.yml`:
+You can use the following configuration options in your `app/config/config.yml`:
 ```yml
 rabbit_mq_supervisor:
-    worker_count:                       1 # number of workers per queue
     supervisor_instance_identifier:     instance_name
     paths:
         workspace_directory:            /path/to/workspace/
@@ -93,9 +92,32 @@ rabbit_mq_supervisor:
         worker_output_log_file:         /path/to/workspace/logs/%kernel.environment%.log
         worker_error_log_file:          /path/to/workspace/logs/%kernel.environment%.log
     commands:
-        rabbitmq_consumer:              user-specific-command:consumer -m %%1$d %%2$s
-        rabbitmq_multiple_consumer:     user-specific-command:multiple-consumer -m %%1$d %%2$s
+        rabbitmq_consumer:              user-specific-command:consumer
+        rabbitmq_multiple_consumer:     user-specific-command:multiple-consumer
+    consumer:
+        general:
+            messages:                   250     # consumer command option: messages to consume
+            memory-limit:               32      # consumer command option: allowed memory for this process
+            debug:                      true    # consumer command option: enable debugging
+            without-signals:            true    # consumer command option: disable catching of system signals
+            worker:
+                count:                  1       # number of workers per consumer
+                startsecs:              2       # supervisord worker option: seconds to consider program running
+                autorestart:            true    # supervisord worker option: if supervisord should restarted program automatically
+                stopsignal:             INT     # supervisord worker option: the signal used to kill the program
+                stopasgroup:            true    # supervisord worker option: if whole process group should be stopped
+                stopwaitsecs:           60      # supervisord worker option: seconds to wait after stop signal before sending kill signal
+        individual:
+            # override options for specific consumers. you can use the same options for any consumer as in consumer.general
+            consumer_name_1:
+                # […]
+            consumer_name_2:
+                # […]
 ```
+
+### BC break when updating to from v1.* to v2.*
+If you used custom commands before version 2.0, you need to update them. In most case you can just remove everything
+after the command name.
 
 ## Usage
 
