@@ -94,13 +94,13 @@ class Configuration  implements ConfigurationInterface
 
         $general = $consumerChildren
                         ->arrayNode('general');
-        $this->addConsumerConfiguration($general);
+        $this->addGeneralConsumerConfiguration($general);
 
         $individualPrototype = $consumerChildren
                         ->arrayNode('individual')
                             ->useAttributeAsKey('consumer')
                             ->prototype('array');
-        $this->addConsumerConfiguration($individualPrototype);
+        $this->addIndividualConsumerConfiguration($individualPrototype);
     }
 
     /**
@@ -108,7 +108,7 @@ class Configuration  implements ConfigurationInterface
      *
      * @param ArrayNodeDefinition $node
      */
-    protected function addConsumerConfiguration(ArrayNodeDefinition $node)
+    protected function addGeneralConsumerConfiguration(ArrayNodeDefinition $node)
     {
         $node
             ->children()
@@ -126,7 +126,77 @@ class Configuration  implements ConfigurationInterface
                 ->end()
                 ->arrayNode('worker')
                     ->children()
-                        ->scalarNode('count')
+                        ->integerNode('count')
+                            ->min(1)
+                            ->defaultValue(1)
+                        ->end()
+                        ->integerNode('startsecs')
+                            ->min(0)
+                            ->defaultValue(2)
+                        ->end()
+                        ->booleanNode('autorestart')
+                            ->defaultTrue()
+                        ->end()
+                        ->enumNode('stopsignal')
+                            ->values(array('TERM', 'INT', 'KILL'))
+                            ->defaultValue('INT')
+                        ->end()
+                        ->booleanNode('stopasgroup')
+                            ->defaultTrue()
+                        ->end()
+                        ->integerNode('stopwaitsecs')
+                            ->min(0)
+                            ->defaultValue(60)
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * Add consumer configuration
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    protected function addIndividualConsumerConfiguration(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->integerNode('messages')
+                    ->defaultNull()
+                ->end()
+                ->integerNode('memory_limit')
+                    ->defaultNull()
+                ->end()
+                ->booleanNode('debug')
+                    ->defaultNull()
+                ->end()
+                ->booleanNode('without_signals')
+                    ->defaultNull()
+                ->end()
+                ->arrayNode('worker')
+                    ->children()
+                        ->integerNode('count')
+                            ->min(1)
+                            ->defaultNull()
+                        ->end()
+                        ->integerNode('startsecs')
+                            ->min(0)
+                            ->defaultNull()
+                        ->end()
+                        ->booleanNode('autorestart')
+                            ->defaultNull()
+                        ->end()
+                        ->enumNode('stopsignal')
+                            ->values(array('TERM', 'INT', 'KILL'))
+                            ->defaultNull()
+                        ->end()
+                        ->booleanNode('stopasgroup')
+                            ->defaultNull()
+                        ->end()
+                        ->integerNode('stopwaitsecs')
+                            ->min(0)
                             ->defaultNull()
                         ->end()
                     ->end()
