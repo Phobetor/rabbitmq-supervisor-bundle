@@ -111,6 +111,7 @@ class Configuration  implements ConfigurationInterface
     protected function addGeneralConsumerConfiguration(ArrayNodeDefinition $node)
     {
         $node
+            ->addDefaultsIfNotSet()
             ->children()
                 ->integerNode('messages')
                     ->defaultNull()
@@ -125,6 +126,7 @@ class Configuration  implements ConfigurationInterface
                     ->defaultNull()
                 ->end()
                 ->arrayNode('worker')
+                ->addDefaultsIfNotSet()
                     ->children()
                         ->integerNode('count')
                             ->min(1)
