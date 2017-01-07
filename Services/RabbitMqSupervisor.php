@@ -268,7 +268,7 @@ class RabbitMqSupervisor
             if (!empty($messages)) {
                 $flags['messages'] = sprintf('--messages=%d', $messages);
             }
-            $memoryLimit = $this->getConsumerOption($name, 'memory_limit');
+            $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
             if (!empty($memoryLimit)) {
                 $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
             }
@@ -276,7 +276,7 @@ class RabbitMqSupervisor
             if (!empty($debug)) {
                 $flags['debug'] = '--debug';
             }
-            $withoutSignals = $this->getConsumerOption($name, 'without_signals');
+            $withoutSignals = $this->getConsumerOption($name, 'without-signals');
             if (!empty($withoutSignals)) {
                 $flags['without-signals'] = '--without-signals';
             }
