@@ -312,6 +312,10 @@ class RabbitMqSupervisor
     }
 
     private function getIndividualConsumerOption($consumer, $key) {
+        if (empty($this->config['consumer']['individual'])) {
+            return null;
+        }
+
         if (!array_key_exists($consumer, $this->config['consumer']['individual'])) {
             return null;
         }
