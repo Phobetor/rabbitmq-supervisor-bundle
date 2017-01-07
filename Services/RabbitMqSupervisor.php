@@ -44,8 +44,6 @@ class RabbitMqSupervisor
      */
     private $config;
 
-
-
     /**
      * Initialize Handler
      *
@@ -283,14 +281,6 @@ class RabbitMqSupervisor
                 $flags['without-signals'] = '--without-signals';
             }
 
-            $workerCount = $this->getConsumerWorkerOption($name, 'count');
-            if (!empty($workerCount)) {
-                $workerCount = (int)$workerCount;
-            }
-            else {
-                $workerCount = 1;
-            }
-
             $this->generateWorkerConfiguration(
                 $name,
                 array(
@@ -299,13 +289,13 @@ class RabbitMqSupervisor
                     'executablePath' => $executablePath,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
-                    'numprocs' => $workerCount,
+                    'numprocs' => (int)$this->getConsumerWorkerOption($name, 'count'),
                     'options' => array(
-                        'startsecs' => '2',
-                        'autorestart' => 'true',
-                        'stopsignal' => 'INT',
-                        'stopasgroup' => 'true',
-                        'stopwaitsecs' => '60',
+                        'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
+                        'autorestart' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'autorestart')),
+                        'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
+                        'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
+                        'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
                     )
                 )
             );
@@ -382,6 +372,19 @@ class RabbitMqSupervisor
         return $this->config['consumer']['general']['worker'][$key];
     }
 
+
+    /**
+     * Transform bool value to string representation.
+     *
+     * @param boolean $value
+     *
+     * @return string
+     */
+    private function transformBoolToString($value)
+    {
+        return $value ? 'true' : 'false';
+    }
+
     /**
      * @param string $fileName file in app/supervisor dir
      * @param array $vars
@@ -401,26 +404,5 @@ class RabbitMqSupervisor
     private function createSupervisorConfigurationFilePath()
     {
         return $this->paths['configuration_file'];
-    }
-
-    /**
-     * Transform bool array values to string representation.
-     *
-     * @param array $options
-     *
-     * @return array
-     */
-    private function transformBoolsToStrings(array $options)
-    {
-        $transformedOptions = array();
-        foreach ($options as $key => $value) {
-            if (is_bool($value)) {
-                $value = $value ? 'true' : 'false';
-            }
-
-            $transformedOptions[$key] = $value;
-        }
-
-        return $transformedOptions;
     }
 }
