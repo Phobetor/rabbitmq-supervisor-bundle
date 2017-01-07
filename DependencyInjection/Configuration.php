@@ -90,6 +90,7 @@ class Configuration  implements ConfigurationInterface
         $consumerChildren = $node
             ->children()
                 ->arrayNode('consumer')
+                ->addDefaultsIfNotSet()
                     ->children();
 
         $general = $consumerChildren
