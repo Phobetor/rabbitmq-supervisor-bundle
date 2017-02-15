@@ -81,7 +81,7 @@ class RabbitMqSupervisor
     {
         $this->createPathDirectories();
 
-        if (!is_file($this->createSupervisorConfigurationFilePath())) {
+        if (!is_file($this->getSupervisorConfigurationFilePath())) {
             $this->generateSupervisorConfiguration();
         }
 
@@ -247,7 +247,7 @@ class RabbitMqSupervisor
             )
         );
         file_put_contents(
-            $this->createSupervisorConfigurationFilePath(),
+            $this->getSupervisorConfigurationFilePath(),
             $content
         );
     }
@@ -405,7 +405,7 @@ class RabbitMqSupervisor
     /**
      * @return string
      */
-    private function createSupervisorConfigurationFilePath()
+    private function getSupervisorConfigurationFilePath()
     {
         return $this->paths['configuration_file'];
     }
