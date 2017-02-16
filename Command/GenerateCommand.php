@@ -6,13 +6,13 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class BuildCommand extends ContainerAwareCommand
+class GenerateCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('rabbitmq-supervisor:build')
-            ->setDescription('Build supervisor worker configuration for all RabbitMQ consumer.')
+            ->setName('rabbitmq-supervisor:generate')
+            ->setDescription('rebuild supervisor worker configuration for all RabbitMQ consumer without (re)starting supervisord.')
         ;
     }
 
@@ -21,6 +21,5 @@ class BuildCommand extends ContainerAwareCommand
         /** @var \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor $handler */
         $handler = $this->getContainer()->get('phobetor_rabbitmq_supervisor');
         $handler->generate();
-        $handler->start();
     }
 }

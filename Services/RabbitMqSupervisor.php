@@ -75,9 +75,9 @@ class RabbitMqSupervisor
     }
 
     /**
-     * Build all supervisor worker configuration files
+     * Generate all supervisor worker configuration files
      */
-    public function build()
+    public function generate()
     {
         $this->createPathDirectories();
 
@@ -104,19 +104,16 @@ class RabbitMqSupervisor
 
         // generate program configuration files for all multiple consumers
         $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer']);
-
-        // start supervisor and reload configuration
-        $this->start();
-        $this->supervisor->reloadAndUpdate();
     }
 
     /**
-     * Stop, build configuration for and start supervisord
+     * Stop, generate configuration for and start supervisord
      */
     public function rebuild()
     {
         $this->stop();
-        $this->build();
+        $this->generate();
+        $this->start();
     }
 
     /**
@@ -142,6 +139,7 @@ class RabbitMqSupervisor
     public function start()
     {
         $this->supervisor->run();
+        $this->supervisor->reloadAndUpdate();
     }
 
     /**
@@ -252,7 +250,11 @@ class RabbitMqSupervisor
         );
     }
 
-    private function generateWorkerConfigurations($names, $command)
+    /**
+     * @param array  $names
+     * @param string $command
+     */
+    private function generateWorkerConfigurations(array $names, $command)
     {
         if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
             $executablePath = $_SERVER["SCRIPT_FILENAME"];
