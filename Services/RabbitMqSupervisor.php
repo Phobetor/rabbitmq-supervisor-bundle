@@ -252,7 +252,7 @@ class RabbitMqSupervisor
         );
     }
 
-    private function generateWorkerConfigurations($names, $command)
+    private function generateWorkerConfigurations($names, $baseCommand)
     {
         if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
             $executablePath = $_SERVER["SCRIPT_FILENAME"];
@@ -262,30 +262,39 @@ class RabbitMqSupervisor
         }
 
         foreach ($names as $name) {
-            // build flags from consumer configuration
-            $flags = array();
-            $messages = $this->getConsumerOption($name, 'messages');
-            if (!empty($messages)) {
-                $flags['messages'] = sprintf('--messages=%d', $messages);
+            // override command when set in consumer configuration
+            $consumerCommand = $this->getConsumerOption($name, 'command');
+            if (!empty($consumerCommand)) {
+                $command = $consumerCommand;
             }
-            $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
-            if (!empty($memoryLimit)) {
-                $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
-            }
-            $debug = $this->getConsumerOption($name, 'debug');
-            if (!empty($debug)) {
-                $flags['debug'] = '--debug';
-            }
-            $withoutSignals = $this->getConsumerOption($name, 'without-signals');
-            if (!empty($withoutSignals)) {
-                $flags['without-signals'] = '--without-signals';
+            else {
+                // build flags from consumer configuration
+                $flags = array();
+                $messages = $this->getConsumerOption($name, 'messages');
+                if (!empty($messages)) {
+                    $flags['messages'] = sprintf('--messages=%d', $messages);
+                }
+                $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
+                if (!empty($memoryLimit)) {
+                    $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
+                }
+                $debug = $this->getConsumerOption($name, 'debug');
+                if (!empty($debug)) {
+                    $flags['debug'] = '--debug';
+                }
+                $withoutSignals = $this->getConsumerOption($name, 'without-signals');
+                if (!empty($withoutSignals)) {
+                    $flags['without-signals'] = '--without-signals';
+                }
+
+                $command = sprintf('%s %s %s', $baseCommand, $name, implode(' ', $flags));
             }
 
             $this->generateWorkerConfiguration(
                 $name,
                 array(
                     'name' => $name,
-                    'command' => sprintf('%s %s %s', $command, $name, implode(' ', $flags)),
+                    'command' => $command,
                     'executablePath' => $executablePath,
                     'workerOutputLog' => $this->paths['worker_output_log_file'],
                     'workerErrorLog' => $this->paths['worker_error_log_file'],
