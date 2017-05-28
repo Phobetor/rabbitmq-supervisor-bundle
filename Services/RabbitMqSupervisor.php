@@ -265,30 +265,29 @@ class RabbitMqSupervisor
             // override command when set in consumer configuration
             $consumerCommand = $this->getConsumerOption($name, 'command');
             if (!empty($consumerCommand)) {
-                $command = $consumerCommand;
+                $baseCommand = $consumerCommand;
             }
-            else {
-                // build flags from consumer configuration
-                $flags = array();
-                $messages = $this->getConsumerOption($name, 'messages');
-                if (!empty($messages)) {
-                    $flags['messages'] = sprintf('--messages=%d', $messages);
-                }
-                $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
-                if (!empty($memoryLimit)) {
-                    $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
-                }
-                $debug = $this->getConsumerOption($name, 'debug');
-                if (!empty($debug)) {
-                    $flags['debug'] = '--debug';
-                }
-                $withoutSignals = $this->getConsumerOption($name, 'without-signals');
-                if (!empty($withoutSignals)) {
-                    $flags['without-signals'] = '--without-signals';
-                }
 
-                $command = sprintf('%s %s %s', $baseCommand, $name, implode(' ', $flags));
+            // build flags from consumer configuration
+            $flags = array();
+            $messages = $this->getConsumerOption($name, 'messages');
+            if (!empty($messages)) {
+                $flags['messages'] = sprintf('--messages=%d', $messages);
             }
+            $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
+            if (!empty($memoryLimit)) {
+                $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
+            }
+            $debug = $this->getConsumerOption($name, 'debug');
+            if (!empty($debug)) {
+                $flags['debug'] = '--debug';
+            }
+            $withoutSignals = $this->getConsumerOption($name, 'without-signals');
+            if (!empty($withoutSignals)) {
+                $flags['without-signals'] = '--without-signals';
+            }
+
+            $command = sprintf('%s %s %s', $baseCommand, $name, implode(' ', $flags));
 
             $this->generateWorkerConfiguration(
                 $name,
