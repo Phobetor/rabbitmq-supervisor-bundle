@@ -265,7 +265,10 @@ class RabbitMqSupervisor
             // override command when set in consumer configuration
             $consumerCommand = $this->getConsumerOption($name, 'command');
             if (!empty($consumerCommand)) {
-                $baseCommand = $consumerCommand;
+                $commandName = $consumerCommand;
+            }
+            else {
+                $commandName = $baseCommand;
             }
 
             // build flags from consumer configuration
@@ -287,7 +290,7 @@ class RabbitMqSupervisor
                 $flags['without-signals'] = '--without-signals';
             }
 
-            $command = sprintf('%s %s %s', $baseCommand, $name, implode(' ', $flags));
+            $command = sprintf('%s %s %s', $commandName, $name, implode(' ', $flags));
 
             $this->generateWorkerConfiguration(
                 $name,
