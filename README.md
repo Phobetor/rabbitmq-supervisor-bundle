@@ -9,20 +9,25 @@ Symfony bundle to automatically create and update supervisor configurations for 
 
 If you use `php-amqplib/rabbitmq-bundle` to handle the communication with RabbitMQ, just add this bundle and run
 ```sh
-app/console rabbitmq-supervisor:rebuild
+$ app/console rabbitmq-supervisor:rebuild
 ```
 to get a running `supervisord` instance that automatically manages all your consumer daemons.
 When your worker configuration or your code changes, run
 ```sh
-app/console rabbitmq-supervisor:rebuild
+$ app/console rabbitmq-supervisor:rebuild
 ```
 again and all the daemons will be updated.
 
 ## Installation
 
+Install [supervisor](http://supervisord.org/). e. g. on debian based distributions via `apt-get`:
+```sh
+$ apt-get install supervisor
+```
+
 Add bundle via composer
 ```sh
-php composer require phobetor/rabbitmq-supervisor-bundle
+$ php composer require phobetor/rabbitmq-supervisor-bundle
 ```
 This will install the bundle to your project’s `vendor` directory.
 
@@ -108,13 +113,13 @@ after the command name.
 
 Build or rebuild the supervisor and worker configuration and start the daemon:
 ```sh
-app/console rabbitmq-supervisor:rebuild
+$ app/console rabbitmq-supervisor:rebuild
 ```
 
 Control the supervisord daemon:
 ```sh
-app/console rabbitmq-supervisor:control stop
-app/console rabbitmq-supervisor:control start
-app/console rabbitmq-supervisor:control restart
-app/console rabbitmq-supervisor:control hup
+$ app/console rabbitmq-supervisor:control stop
+$ app/console rabbitmq-supervisor:control start
+$ app/console rabbitmq-supervisor:control restart
+$ app/console rabbitmq-supervisor:control hup
 ```
