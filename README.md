@@ -7,7 +7,7 @@ Symfony bundle to automatically create and update supervisor configurations for 
 
 ## In a nutshell | tl;dr
 
-If you use `php-amqplib/rabbitmq-bundle` to handle the communication with RabbitMQ, just add this bundle and run
+If you use `php-amqplib/rabbitmq-bundle` to handle the communication with RabbitMQ, just install [supervisor](http://supervisord.org/), add this bundle and run
 ```sh
 $ app/console rabbitmq-supervisor:rebuild
 ```
