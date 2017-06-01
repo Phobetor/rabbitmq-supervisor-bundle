@@ -20,25 +20,10 @@ again and all the daemons will be updated.
 
 ## Installation
 
-Add bundle via command line
+Add bundle via composer
 ```sh
-php composer.phar require phobetor/rabbitmq-supervisor-bundle
+php composer require phobetor/rabbitmq-supervisor-bundle
 ```
-
-or manually to `composer.json` file
-```js
-{
-    "require": {
-        "phobetor/rabbitmq-supervisor-bundle": "~2.0"
-    }
-}
-```
-
-Fetch the needed files:
-```bash
-$ php composer.phar update phobetor/rabbitmq-supervisor-bundle
-```
-
 This will install the bundle to your project’s `vendor` directory.
 
 Add the bundle to your project’s `AppKernel`:
