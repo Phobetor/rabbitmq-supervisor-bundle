@@ -3,7 +3,7 @@ RabbitMQ supervisor bundle
 
 [![Latest Stable Version](https://poser.pugx.org/phobetor/rabbitmq-supervisor-bundle/v/stable.png)](https://packagist.org/packages/phobetor/rabbitmq-supervisor-bundle) [![License](https://poser.pugx.org/phobetor/rabbitmq-supervisor-bundle/license.png)](https://packagist.org/packages/phobetor/rabbitmq-supervisor-bundle)
 
-Symfony bundle to automatically create and update supervisor configurations for `php-amqplib/rabbitmq-bundle` (and its predecessor `oldsound/rabbitmq-bundle`) RabbitMQ consumer daemons.
+Symfony bundle to automatically create and update [supervisor](http://supervisord.org/) configurations for `php-amqplib/rabbitmq-bundle` (and its predecessor `oldsound/rabbitmq-bundle`) RabbitMQ consumer daemons.
 
 ## In a nutshell | tl;dr
 
