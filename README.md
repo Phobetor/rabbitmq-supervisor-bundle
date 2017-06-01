@@ -12,11 +12,7 @@ If you use `php-amqplib/rabbitmq-bundle` to handle the communication with Rabbit
 $ app/console rabbitmq-supervisor:rebuild
 ```
 to get a running `supervisord` instance that automatically manages all your consumer daemons.
-When your worker configuration or your code changes, run
-```sh
-$ app/console rabbitmq-supervisor:rebuild
-```
-again and all the daemons will be updated.
+When your worker configuration or your code changes, run the command again and all the daemons will be updated.
 
 ## Installation
 
