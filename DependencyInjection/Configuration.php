@@ -3,8 +3,8 @@
 namespace Phobetor\RabbitMqSupervisorBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * This bundle uses the rabbit mq bundle's configuration
@@ -46,13 +46,13 @@ class Configuration  implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('workspace_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/')->end()
-                        ->scalarNode('configuration_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
-                        ->scalarNode('pid_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
-                        ->scalarNode('sock_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
-                        ->scalarNode('log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.log')->end()
-                        ->scalarNode('worker_configuration_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/worker/')->end()
-                        ->scalarNode('worker_output_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
-                        ->scalarNode('worker_error_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
+                        ->scalarNode('configuration_file')->defaultValue('%phobetor_rabbitmq_supervisor.workspace%supervisord.conf')->end()
+                        ->scalarNode('pid_file')->defaultValue('%phobetor_rabbitmq_supervisor.workspace%supervisor.pid')->end()
+                        ->scalarNode('sock_file')->defaultValue('%phobetor_rabbitmq_supervisor.workspace%supervisor.sock')->end()
+                        ->scalarNode('log_file')->defaultValue('%phobetor_rabbitmq_supervisor.workspace%supervisord.log')->end()
+                        ->scalarNode('worker_configuration_directory')->defaultValue('%phobetor_rabbitmq_supervisor.workspace%worker/')->end()
+                        ->scalarNode('worker_output_log_file')->defaultValue('%phobetor_rabbitmq_supervisor.workspace%logs/stdout.log')->end()
+                        ->scalarNode('worker_error_log_file')->defaultValue('%phobetor_rabbitmq_supervisor.workspace%logs/stderr.log')->end()
                     ->end()
                 ->end()
             ->end()
