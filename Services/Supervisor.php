@@ -2,14 +2,36 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\Services;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Process\Process;
 
-class Supervisor
+class Supervisor implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
+    /**
+     * @var string
+     */
     private $applicationDirectory;
+
+    /**
+     * @var string
+     */
     private $configurationParameter;
+
+    /**
+     * @var string
+     */
     private $identifierParameter;
 
+    /**
+     * Supervisor constructor.
+     *
+     * @param string $applicationDirectory
+     * @param string $configuration
+     * @param string $identifier
+     */
     public function __construct($applicationDirectory, $configuration, $identifier)
     {
         $this->applicationDirectory = $applicationDirectory;
@@ -25,16 +47,21 @@ class Supervisor
      */
     public function execute($cmd)
     {
-        $p = new Process(
-            sprintf(
-                'supervisorctl%1$s %2$s',
-                $this->configurationParameter,
-                $cmd
-            )
+        $command = sprintf(
+            'supervisorctl%1$s %2$s',
+            $this->configurationParameter,
+            $cmd
         );
+        $this->logger->debug('Executing: ' . $command);
+        $p = new Process($command);
         $p->setWorkingDirectory($this->applicationDirectory);
         $p->run();
+        if ($p->getExitCode() !== 0) {
+            $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
+        }
         $p->wait();
+        $this->logger->debug('Output: '. $p->getOutput());
+
         return $p;
     }
 
@@ -54,15 +81,18 @@ class Supervisor
     {
         $result = $this->execute('status')->getOutput();
         if (strpos($result, 'sock no such file') || strpos($result, 'refused connection')) {
-            $p = new Process(
-                sprintf(
-                    'supervisord%1$s%2$s',
-                    $this->configurationParameter,
-                    $this->identifierParameter
-                )
+            $command = sprintf(
+                'supervisord%1$s%2$s',
+                $this->configurationParameter,
+                $this->identifierParameter
             );
+            $this->logger->debug('Executing: ' . $command);
+            $p = new Process($command);
             $p->setWorkingDirectory($this->applicationDirectory);
             $p->run();
+            if ($p->getExitCode() !== 0) {
+                $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
+            }
         }
     }
 }
