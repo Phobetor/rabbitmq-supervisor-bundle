@@ -2,6 +2,7 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\Services;
 
+use Phobetor\RabbitMqSupervisorBundle\Exception\ProcessException;
 use Symfony\Component\Process\Process;
 
 class Supervisor
@@ -35,6 +36,10 @@ class Supervisor
         $p->setWorkingDirectory($this->applicationDirectory);
         $p->run();
         $p->wait();
+        if ($p->getExitCode() !== 0) {
+            throw new ProcessException($p);
+        }
+
         return $p;
     }
 
@@ -63,6 +68,9 @@ class Supervisor
             );
             $p->setWorkingDirectory($this->applicationDirectory);
             $p->run();
+            if ($p->getExitCode() !== 0) {
+                throw new ProcessException($p);
+            }
         }
     }
 }
