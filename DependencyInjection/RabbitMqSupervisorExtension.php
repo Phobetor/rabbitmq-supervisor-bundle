@@ -71,7 +71,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
                     // take over this bundle's configuration
                     $extensionConfig = $container->getExtensionConfig($name);
 
-                    foreach (array('consumers', 'multiple_consumers') as $attribute) {
+                    foreach (array('consumers', 'multiple_consumers', 'batch_consumers') as $attribute) {
                         if (isset($extensionConfig[0][$attribute])) {
                             $attributeValue = $extensionConfig[0][$attribute];
                         } else {

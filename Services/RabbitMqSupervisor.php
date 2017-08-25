@@ -42,6 +42,11 @@ class RabbitMqSupervisor
     /**
      * @var array
      */
+    private $batchConsumers;
+
+    /**
+     * @var array
+     */
     private $config;
 
     /**
@@ -53,9 +58,10 @@ class RabbitMqSupervisor
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
+     * @param array $batchConsumers
      * @param array $config
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $config)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $config)
     {
         $this->supervisor = $supervisor;
         $this->templating = $templating;
@@ -63,6 +69,7 @@ class RabbitMqSupervisor
         $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
+        $this->batchConsumers = $batchConsumers;
         $this->config = $config;
     }
 
@@ -104,6 +111,9 @@ class RabbitMqSupervisor
 
         // generate program configuration files for all multiple consumers
         $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer']);
+
+        // generate program configuration files for all batch consumers
+        $this->generateWorkerConfigurations(array_keys($this->batchConsumers), $this->commands['rabbitmq_batch_consumer']);
 
         // start supervisor and reload configuration
         $this->start();
@@ -273,7 +283,7 @@ class RabbitMqSupervisor
 
             // build flags from consumer configuration
             $flags = array();
-            $messages = $this->getConsumerOption($name, 'messages');
+            $messages = in_array($name, $this->batchConsumers) ? $this->getConsumerOption($name, 'messages') : null;
             if (!empty($messages)) {
                 $flags['messages'] = sprintf('--messages=%d', $messages);
             }
