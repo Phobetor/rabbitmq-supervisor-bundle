@@ -80,6 +80,7 @@ rabbit_mq_supervisor:
     commands:
         rabbitmq_consumer:              user-specific-command:consumer
         rabbitmq_multiple_consumer:     user-specific-command:multiple-consumer
+        rabbitmq_rpc_server:            user-specific-command:rpc-server
     consumer:
         general:
             messages:                   250     # consumer command option: messages to consume
