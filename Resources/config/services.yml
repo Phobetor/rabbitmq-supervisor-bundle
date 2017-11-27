@@ -20,3 +20,5 @@ services:
             - "%phobetor_rabbitmq_supervisor.workspace%"
             - "%phobetor_rabbitmq_supervisor.configuration_file%"
             - "%phobetor_rabbitmq_supervisor.supervisor_instance_identifier%"
+        calls:
+            - [ setLogger, ['@logger']]
