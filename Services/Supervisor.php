@@ -4,6 +4,7 @@ namespace Phobetor\RabbitMqSupervisorBundle\Services;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Phobetor\RabbitMqSupervisorBundle\Exception\ProcessException;
 use Symfony\Component\Process\Process;
 
 class Supervisor implements LoggerAwareInterface
@@ -62,6 +63,10 @@ class Supervisor implements LoggerAwareInterface
         $p->wait();
         $this->logger->debug('Output: '. $p->getOutput());
 
+        if ($p->getExitCode() !== 0) {
+            throw new ProcessException($p);
+        }
+
         return $p;
     }
 
@@ -92,6 +97,7 @@ class Supervisor implements LoggerAwareInterface
             $p->run();
             if ($p->getExitCode() !== 0) {
                 $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
+                throw new ProcessException($p);
             }
         }
     }
