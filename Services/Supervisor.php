@@ -34,7 +34,6 @@ class Supervisor
         );
         $p->setWorkingDirectory($this->applicationDirectory);
         $p->run();
-        $p->wait();
         return $p;
     }
 
@@ -62,7 +61,7 @@ class Supervisor
                 )
             );
             $p->setWorkingDirectory($this->applicationDirectory);
-            $p->run();
+            $p->start();
         }
     }
 }
