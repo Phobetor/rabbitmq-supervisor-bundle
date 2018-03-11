@@ -5,6 +5,7 @@ parameters:
 services:
     phobetor_rabbitmq_supervisor:
         class: "%phobetor_rabbitmq_supervisor.rabbitmq_supervisor_service.class%"
+        public: true
         arguments:
             - "@phobetor_rabbitmq_supervisor.supervisor_service"
             - "@templating"
@@ -16,9 +17,40 @@ services:
 
     phobetor_rabbitmq_supervisor.supervisor_service:
         class: "%phobetor_rabbitmq_supervisor.supervisor_service.class%"
+        public: true
         arguments:
             - "%phobetor_rabbitmq_supervisor.workspace%"
             - "%phobetor_rabbitmq_supervisor.configuration_file%"
             - "%phobetor_rabbitmq_supervisor.supervisor_instance_identifier%"
         calls:
             - [ setLogger, ['@logger']]
+
+    phobetor_rabbitmq_supervisor.command.build:
+        class: Phobetor\RabbitMqSupervisorBundle\Command\BuildCommand
+        tags:
+            - { name: 'console.command', command: 'rabbitmq-supervisor:build' }
+
+    phobetor_rabbitmq_supervisor.command.control:
+        class: Phobetor\RabbitMqSupervisorBundle\Command\ControlCommand
+        tags:
+            - { name: 'console.command', command: 'rabbitmq-supervisor:control' }
+
+    phobetor_rabbitmq_supervisor.command.init:
+        class: Phobetor\RabbitMqSupervisorBundle\Command\InitCommand
+        tags:
+            - { name: 'console.command', command: 'rabbitmq-supervisor:init' }
+
+    phobetor_rabbitmq_supervisor.command.kill:
+        class: Phobetor\RabbitMqSupervisorBundle\Command\KillCommand
+        tags:
+            - { name: 'console.command', command: 'rabbitmq-supervisor:kill' }
+
+    phobetor_rabbitmq_supervisor.command.rebuild:
+        class: Phobetor\RabbitMqSupervisorBundle\Command\RebuildCommand
+        tags:
+            - { name: 'console.command', command: 'rabbitmq-supervisor:rebuild' }
+
+    phobetor_rabbitmq_supervisor.command.restart:
+        class: Phobetor\RabbitMqSupervisorBundle\Command\RestartCommand
+        tags:
+            - { name: 'console.command', command: 'rabbitmq-supervisor:restart' }
