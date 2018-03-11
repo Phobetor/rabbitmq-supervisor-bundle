@@ -65,22 +65,29 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
 
     public function prepend(ContainerBuilder $container)
     {
+        $attributeNames = array('consumers', 'multiple_consumers');
+        $attributes = array_combine($attributeNames, array_fill(0, count($attributeNames), []));
+
         foreach ($container->getExtensions() as $name => $extension) {
             switch ($name) {
                 case 'old_sound_rabbit_mq':
                     // take over this bundle's configuration
                     $extensionConfig = $container->getExtensionConfig($name);
 
-                    foreach (array('consumers', 'multiple_consumers') as $attribute) {
+                    foreach ($attributeNames as $attribute) {
                         if (isset($extensionConfig[0][$attribute])) {
                             $attributeValue = $extensionConfig[0][$attribute];
                         } else {
                             $attributeValue = array();
                         }
-                        $container->setParameter('phobetor_rabbitmq_supervisor.' . $attribute, $attributeValue);
+                        $attributes[$attribute] = $attributeValue;
                     }
                     break;
             }
+        }
+
+        foreach ($attributes as $name => $value) {
+            $container->setParameter('phobetor_rabbitmq_supervisor.' . $name, $value);
         }
     }
 
