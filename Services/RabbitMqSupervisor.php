@@ -197,13 +197,19 @@ class RabbitMqSupervisor
      */
     private function isProcessRunning($pid) {
         $state = array();
-        exec(sprintf('ps %d', $pid), $state);
+        exec(sprintf('ps %d -o pid', $pid), $state);
+
+        // remove alignment spaces from PIDs
+        $state = array_map('trim', $state);
 
         /*
          * ps will return at least one row, the column labels.
          * If the process is running ps will return a second row with its status.
+         *
+         * Fix: alpine ignores PID argument and always return all processes.
+         * Need to track if PID is not in result
          */
-        return 1 < count($state);
+        return 1 < count($state) && in_array($pid, $state);
     }
 
     /**
