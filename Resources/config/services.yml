@@ -8,7 +8,6 @@ services:
         public: true
         arguments:
             - "@phobetor_rabbitmq_supervisor.supervisor_service"
-            - "@templating"
             - "%phobetor_rabbitmq_supervisor.paths%"
             - "%phobetor_rabbitmq_supervisor.commands%"
             - "%phobetor_rabbitmq_supervisor.consumers%"
