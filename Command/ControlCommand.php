@@ -36,6 +36,10 @@ class ControlCommand extends ContainerAwareCommand
             case 'hup':
                 $handler->hup();
                 break;
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'Unknown command. Expected (start|stop|restart|hup), given "%s"', $input->getArgument('cmd')
+                ));
         }
     }
 }
