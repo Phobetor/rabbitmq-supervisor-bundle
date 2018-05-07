@@ -2,7 +2,7 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\Services;
 
-use Symfony\Component\Templating\EngineInterface;
+use Phobetor\RabbitMqSupervisorBundle\Helpers\ConfigurationHelper;
 
 /**
  * @license MIT
@@ -13,11 +13,6 @@ class RabbitMqSupervisor
      * @var \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor
      */
     private $supervisor;
-
-    /**
-     * @var \Symfony\Component\Templating\EngineInterface
-     */
-    private $templating;
 
     /**
      * @var array
@@ -45,25 +40,30 @@ class RabbitMqSupervisor
     private $config;
 
     /**
+     * @var string
+     */
+    private $environment;
+
+    /**
      * Initialize Handler
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
-     * @param \Symfony\Component\Templating\EngineInterface $templating
      * @param array $paths
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
      * @param array $config
+     * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $config)
+    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $config, $environment)
     {
         $this->supervisor = $supervisor;
-        $this->templating = $templating;
         $this->paths = $paths;
         $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
         $this->config = $config;
+        $this->environment = $environment;
     }
 
     /**
@@ -197,13 +197,19 @@ class RabbitMqSupervisor
      */
     private function isProcessRunning($pid) {
         $state = array();
-        exec(sprintf('ps %d', $pid), $state);
+        exec(sprintf('ps %d -o pid', $pid), $state);
+
+        // remove alignment spaces from PIDs
+        $state = array_map('trim', $state);
 
         /*
          * ps will return at least one row, the column labels.
          * If the process is running ps will return a second row with its status.
+         *
+         * Fix: alpine ignores PID argument and always return all processes.
+         * Need to track if PID is not in result
          */
-        return 1 < count($state);
+        return 1 < count($state) && in_array($pid, $state);
     }
 
     /**
@@ -237,15 +243,26 @@ class RabbitMqSupervisor
 
     public function generateSupervisorConfiguration()
     {
-        $content = $this->templating->render(
-            'RabbitMqSupervisorBundle:Supervisor:supervisord.conf.twig',
-            array(
-                'pidFile' => $this->paths['pid_file'],
-                'sockFile' => $this->paths['sock_file'],
-                'logFile' => $this->paths['log_file'],
-                'workerConfigurationDirectory' => $this->paths['worker_configuration_directory'],
+        $configurationHelper = new ConfigurationHelper();
+        $content = $configurationHelper->getConfigurationStringFromDataArray(array(
+            'unix_http_server' => array(
+                'file' => $this->paths['sock_file'],
+                'chmod' => '0700'
+            ),
+            'supervisord' => array(
+                'logfile' => $this->paths['log_file'],
+                'pidfile' => $this->paths['pid_file']
+            ),
+            'rpcinterface:supervisor' => array(
+                'supervisor.rpcinterface_factory' => 'supervisor.rpcinterface:make_main_rpcinterface'
+            ),
+            'supervisorctl' => array(
+                'serverurl' => sprintf('unix://%s', $this->paths['sock_file'])
+            ),
+            'include' => array(
+                'files' => sprintf('%s*.conf', $this->paths['worker_configuration_directory'])
             )
-        );
+        ));
         file_put_contents(
             $this->createSupervisorConfigurationFilePath(),
             $content
@@ -295,18 +312,17 @@ class RabbitMqSupervisor
             $this->generateWorkerConfiguration(
                 $name,
                 array(
-                    'name' => $name,
-                    'command' => $command,
-                    'executablePath' => $executablePath,
-                    'workerOutputLog' => $this->paths['worker_output_log_file'],
-                    'workerErrorLog' => $this->paths['worker_error_log_file'],
-                    'numprocs' => (int)$this->getConsumerWorkerOption($name, 'count'),
-                    'options' => array(
+                    sprintf('program:%s', $name) => array(
+                        'command' => sprintf('php %s %s --env=%s', $executablePath, $command, $this->environment),
+                        'process_name' => '%(program_name)s%(process_num)02d',
+                        'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
                         'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
                         'autorestart' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'autorestart')),
                         'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
                         'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
                         'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
+                        'stdout_logfile' => $this->paths['worker_output_log_file'],
+                        'stderr_logfile' => $this->paths['worker_error_log_file']
                     )
                 )
             );
@@ -406,7 +422,8 @@ class RabbitMqSupervisor
      */
     public function generateWorkerConfiguration($fileName, $vars)
     {
-        $content = $this->templating->render('RabbitMqSupervisorBundle:Supervisor:program.conf.twig', $vars);
+        $configurationHelper = new ConfigurationHelper();
+        $content = $configurationHelper->getConfigurationStringFromDataArray($vars);
         file_put_contents(
             sprintf('%s%s.conf', $this->paths['worker_configuration_directory'], $fileName),
             $content
