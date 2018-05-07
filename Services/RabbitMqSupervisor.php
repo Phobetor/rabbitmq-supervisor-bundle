@@ -206,8 +206,7 @@ class RabbitMqSupervisor
          * ps will return at least one row, the column labels.
          * If the process is running ps will return a second row with its status.
          *
-         * Fix: alpine ignores PID argument and always return all processes.
-         * Need to track if PID is not in result
+         * check if pid is in that list to work even if some systems ignore the pid filter parameter
          */
         return 1 < count($state) && in_array($pid, $state);
     }
