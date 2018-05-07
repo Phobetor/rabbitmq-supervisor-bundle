@@ -197,7 +197,7 @@ class RabbitMqSupervisor
      */
     private function isProcessRunning($pid) {
         $state = array();
-        exec(sprintf('ps %d -o pid', $pid), $state);
+        exec(sprintf('ps -o pid %d', $pid), $state);
 
         // remove alignment spaces from PIDs
         $state = array_map('trim', $state);
