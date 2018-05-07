@@ -40,6 +40,11 @@ class RabbitMqSupervisor
     private $config;
 
     /**
+     * @var string
+     */
+    private $environment;
+
+    /**
      * Initialize Handler
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
@@ -48,8 +53,9 @@ class RabbitMqSupervisor
      * @param array $consumers
      * @param array $multipleConsumers
      * @param array $config
+     * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $config)
+    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $config, $environment)
     {
         $this->supervisor = $supervisor;
         $this->paths = $paths;
@@ -57,6 +63,7 @@ class RabbitMqSupervisor
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
         $this->config = $config;
+        $this->environment = $environment;
     }
 
     /**
@@ -300,7 +307,7 @@ class RabbitMqSupervisor
                 $name,
                 array(
                     sprintf('program:%s', $name) => array(
-                        'command' => sprintf('php %s %s --env=%s', $executablePath, $command, 'prod'), // todo {{ app.environment }}
+                        'command' => sprintf('php %s %s --env=%s', $executablePath, $command, $this->environment),
                         'process_name' => '%(program_name)s%(process_num)02d',
                         'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
                         'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
