@@ -60,7 +60,6 @@ class Supervisor implements LoggerAwareInterface
         if ($p->getExitCode() !== 0) {
             $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
         }
-        $p->wait();
         $this->logger->debug('Output: '. $p->getOutput());
 
         if ($p->getExitCode() !== 0) {
@@ -94,11 +93,7 @@ class Supervisor implements LoggerAwareInterface
             $this->logger->debug('Executing: ' . $command);
             $p = new Process($command);
             $p->setWorkingDirectory($this->applicationDirectory);
-            $p->run();
-            if ($p->getExitCode() !== 0) {
-                $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
-                throw new ProcessException($p);
-            }
+            $p->start();
         }
     }
 }
