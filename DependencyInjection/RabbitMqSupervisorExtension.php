@@ -50,7 +50,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
             $consumer['general']['worker']['count'] = $config['worker_count'];
         }
 
-        // set default value of 250 if messages is not net or set to default value
+        // set default value of 250 if messages is not set or set to default value
         if (!array_key_exists('messages', $consumer['general']) || null === $consumer['general']['messages']) {
             $consumer['general']['messages'] = 250;
         }
