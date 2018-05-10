@@ -27,6 +27,11 @@ class Supervisor implements LoggerAwareInterface
     private $identifierParameter;
 
     /**
+     * @var bool
+     */
+    private $waitForSupervisord = false;
+
+    /**
      * Supervisor constructor.
      *
      * @param string $applicationDirectory
@@ -38,6 +43,13 @@ class Supervisor implements LoggerAwareInterface
         $this->applicationDirectory = $applicationDirectory;
         $this->configurationParameter = $configuration ? (' --configuration=' . $configuration) : '';
         $this->identifierParameter    = $identifier    ? (' --identifier='    . $identifier)    : '';
+    }
+
+    /**
+     * @param bool $waitForSupervisord
+     */
+    public function setWaitForSupervisord($waitForSupervisord) {
+        $this->waitForSupervisord = $waitForSupervisord;
     }
 
     /**
@@ -60,7 +72,7 @@ class Supervisor implements LoggerAwareInterface
         if ($p->getExitCode() !== 0) {
             $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
         }
-        $this->logger->debug('Output: '. $p->getOutput());
+        $this->logger->debug('supervisorctl output: '. $p->getOutput());
 
         if ($p->getExitCode() !== 0) {
             throw new ProcessException($p);
@@ -93,7 +105,16 @@ class Supervisor implements LoggerAwareInterface
             $this->logger->debug('Executing: ' . $command);
             $p = new Process($command);
             $p->setWorkingDirectory($this->applicationDirectory);
-            $p->start();
+            if (!$this->waitForSupervisord) {
+                $p->start();
+            } else {
+                $p->run();
+                if ($p->getExitCode() !== 0) {
+                    $this->logger->critical(sprintf('supervisord returns code: %s', $p->getExitCodeText()));
+                    throw new ProcessException($p);
+                }
+                $this->logger->debug('supervisord output: '. $p->getOutput());
+            }
         }
     }
 }

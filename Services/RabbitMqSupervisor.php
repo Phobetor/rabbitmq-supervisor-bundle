@@ -67,6 +67,13 @@ class RabbitMqSupervisor
     }
 
     /**
+     * @param bool $waitForSupervisord
+     */
+    public function setWaitForSupervisord($waitForSupervisord) {
+        $this->supervisor->setWaitForSupervisord($waitForSupervisord);
+    }
+
+    /**
      * Build supervisor configuration
      */
     public function init()
