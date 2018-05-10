@@ -3,42 +3,28 @@ RabbitMQ supervisor bundle
 
 [![Latest Stable Version](https://poser.pugx.org/phobetor/rabbitmq-supervisor-bundle/v/stable.png)](https://packagist.org/packages/phobetor/rabbitmq-supervisor-bundle) [![License](https://poser.pugx.org/phobetor/rabbitmq-supervisor-bundle/license.png)](https://packagist.org/packages/phobetor/rabbitmq-supervisor-bundle)
 
-Symfony bundle to automatically create and update supervisor configurations for `php-amqplib/rabbitmq-bundle` (and its predecessor `oldsound/rabbitmq-bundle`) RabbitMQ consumer daemons.
+Symfony bundle to automatically create and update [supervisor](http://supervisord.org/) configurations for `php-amqplib/rabbitmq-bundle` (and its predecessor `oldsound/rabbitmq-bundle`) RabbitMQ consumer daemons.
 
 ## In a nutshell | tl;dr
 
-If you use `php-amqplib/rabbitmq-bundle` to handle the communication with RabbitMQ, just add this bundle and run
+If you use `php-amqplib/rabbitmq-bundle` to handle the communication with RabbitMQ, just install [supervisor](http://supervisord.org/), add this bundle and run
 ```sh
-app/console rabbitmq-supervisor:rebuild
+$ app/console rabbitmq-supervisor:rebuild
 ```
 to get a running `supervisord` instance that automatically manages all your consumer daemons.
-When your worker configuration or your code changes, run
-```sh
-app/console rabbitmq-supervisor:rebuild
-```
-again and all the daemons will be updated.
+When your worker configuration or your code changes, run the command again and all the daemons will be updated.
 
 ## Installation
 
-Add bundle via command line
+Install [supervisor](http://supervisord.org/). e. g. on debian based distributions via `apt-get`:
 ```sh
-php composer.phar require phobetor/rabbitmq-supervisor-bundle
+$ apt-get install supervisor
 ```
 
-or manually to `composer.json` file
-```js
-{
-    "require": {
-        "phobetor/rabbitmq-supervisor-bundle": "~2.0"
-    }
-}
+Add bundle via composer
+```sh
+$ php composer require phobetor/rabbitmq-supervisor-bundle
 ```
-
-Fetch the needed files:
-```bash
-$ php composer.phar update phobetor/rabbitmq-supervisor-bundle
-```
-
 This will install the bundle to your project’s `vendor` directory.
 
 Add the bundle to your project’s `AppKernel`:
@@ -123,13 +109,13 @@ after the command name.
 
 Build or rebuild the supervisor and worker configuration and start the daemon:
 ```sh
-app/console rabbitmq-supervisor:rebuild
+$ app/console rabbitmq-supervisor:rebuild
 ```
 
 Control the supervisord daemon:
 ```sh
-app/console rabbitmq-supervisor:control stop
-app/console rabbitmq-supervisor:control start
-app/console rabbitmq-supervisor:control restart
-app/console rabbitmq-supervisor:control hup
+$ app/console rabbitmq-supervisor:control stop
+$ app/console rabbitmq-supervisor:control start
+$ app/console rabbitmq-supervisor:control restart
+$ app/console rabbitmq-supervisor:control hup
 ```
