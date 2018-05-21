@@ -5,6 +5,7 @@ namespace Phobetor\RabbitMqSupervisorBundle\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ControlCommand extends ContainerAwareCommand
@@ -13,8 +14,9 @@ class ControlCommand extends ContainerAwareCommand
     {
         $this
             ->setName('rabbitmq-supervisor:control')
-            ->addArgument('cmd', InputArgument::REQUIRED, '(start|stop|restart|hup)')
             ->setDescription('Common commands to control the supervisord process')
+            ->addArgument('cmd', InputArgument::REQUIRED, '(start|stop|restart|hup)')
+            ->addOption('wait-for-supervisord', null, InputOption::VALUE_NONE)
         ;
     }
 
@@ -22,6 +24,7 @@ class ControlCommand extends ContainerAwareCommand
     {
         /** @var \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor $handler */
         $handler = $this->getContainer()->get('phobetor_rabbitmq_supervisor');
+        $handler->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
 
         switch ($input->getArgument('cmd')) {
             case 'start':
@@ -36,6 +39,10 @@ class ControlCommand extends ContainerAwareCommand
             case 'hup':
                 $handler->hup();
                 break;
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'Unknown command. Expected (start|stop|restart|hup), given "%s"', $input->getArgument('cmd')
+                ));
         }
     }
 }

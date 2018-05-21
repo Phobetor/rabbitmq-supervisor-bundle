@@ -4,6 +4,7 @@ namespace Phobetor\RabbitMqSupervisorBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RebuildCommand extends ContainerAwareCommand
@@ -13,6 +14,7 @@ class RebuildCommand extends ContainerAwareCommand
         $this
             ->setName('rabbitmq-supervisor:rebuild')
             ->setDescription('Stop supervisord, rebuild supervisor worker configuration for all RabbitMQ consumer and start supervisord again.')
+            ->addOption('wait-for-supervisord', null, InputOption::VALUE_NONE)
         ;
     }
 
@@ -20,6 +22,7 @@ class RebuildCommand extends ContainerAwareCommand
     {
         /** @var \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor $handler */
         $handler = $this->getContainer()->get('phobetor_rabbitmq_supervisor');
+        $handler->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
         $handler->rebuild();
     }
 }
