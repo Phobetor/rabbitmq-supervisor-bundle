@@ -349,7 +349,7 @@ class RabbitMqSupervisor
                 $name,
                 array(
                     sprintf('program:%s', $name) => array(
-                        'command' => sprintf('php %s %s --env=%s', $executablePath, $command, $this->environment),
+                        'command' => sprintf('%s %s %s --env=%s', $this->paths['php_executable'], $executablePath, $command, $this->environment),
                         'process_name' => '%(program_name)s%(process_num)02d',
                         'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
                         'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
