@@ -101,7 +101,8 @@ class Configuration implements ConfigurationInterface
         $this->addGeneralConsumerConfiguration($general);
 
         $individualPrototype = $consumerChildren
-                        ->arrayNode('individual')
+                        ->arrayNode('individual');
+        $individualPrototype
                             ->useAttributeAsKey('consumer')
                             ->prototype('array');
         $this->addIndividualConsumerConfiguration($individualPrototype);
