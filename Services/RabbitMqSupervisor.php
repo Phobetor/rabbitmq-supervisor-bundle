@@ -316,9 +316,13 @@ class RabbitMqSupervisor
 
             // build flags from consumer configuration
             $flags = array();
-            $messages = in_array($name, $this->batchConsumers) ? $this->getConsumerOption($name, 'messages') : null;
-            if (!empty($messages)) {
-                $flags['messages'] = sprintf('--messages=%d', $messages);
+
+            //rabbitmq:rpc-server does not support options below
+            if ($baseCommand !== 'rabbitmq:batch:consumer') {
+                $messages = $this->getConsumerOption($name, 'messages');
+                if (!empty($messages)) {
+                    $flags['messages'] = sprintf('--messages=%d', $messages);
+                }
             }
 
             $debug = $this->getConsumerOption($name, 'debug');
