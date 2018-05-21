@@ -75,6 +75,7 @@ class Configuration  implements ConfigurationInterface
                         ->scalarNode('rabbitmq_consumer')->defaultValue('rabbitmq:consumer')->end()
                         ->scalarNode('rabbitmq_multiple_consumer')->defaultValue('rabbitmq:multiple-consumer')->end()
                         ->scalarNode('rabbitmq_batch_consumer')->defaultValue('rabbitmq:batch:consumer')->end()
+                        ->scalarNode('rabbitmq_rpc_server')->defaultValue('rabbitmq:rpc-server')->end()
                     ->end()
                 ->end()
             ->end()

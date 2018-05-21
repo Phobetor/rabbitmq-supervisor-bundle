@@ -2,7 +2,7 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\Services;
 
-use Symfony\Component\Templating\EngineInterface;
+use Phobetor\RabbitMqSupervisorBundle\Helpers\ConfigurationHelper;
 
 /**
  * @license MIT
@@ -13,11 +13,6 @@ class RabbitMqSupervisor
      * @var \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor
      */
     private $supervisor;
-
-    /**
-     * @var \Symfony\Component\Templating\EngineInterface
-     */
-    private $templating;
 
     /**
      * @var array
@@ -47,30 +42,49 @@ class RabbitMqSupervisor
     /**
      * @var array
      */
+    private $rpcServers;
+
+    /**
+     * @var array
+     */
     private $config;
+
+    /**
+     * @var string
+     */
+    private $environment;
 
     /**
      * Initialize Handler
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
-     * @param \Symfony\Component\Templating\EngineInterface $templating
      * @param array $paths
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
      * @param array $batchConsumers
+     * @param array $rpcServers
      * @param array $config
+     * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $config)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config)
     {
         $this->supervisor = $supervisor;
-        $this->templating = $templating;
         $this->paths = $paths;
         $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
         $this->batchConsumers = $batchConsumers;
+        $this->rpcServers = $rpcServers;
         $this->config = $config;
+        $this->environment = $environment;
+    }
+
+    /**
+     * @param bool $waitForSupervisord
+     */
+    public function setWaitForSupervisord($waitForSupervisord) {
+        $this->supervisor->setWaitForSupervisord($waitForSupervisord);
     }
 
     /**
@@ -114,6 +128,9 @@ class RabbitMqSupervisor
 
         // generate program configuration files for all batch consumers
         $this->generateWorkerConfigurations(array_keys($this->batchConsumers), $this->commands['rabbitmq_batch_consumer']);
+
+        //generate program configuration files for all rpc_server consumers
+        $this->generateWorkerConfigurations(array_keys($this->rpcServers), $this->commands['rabbitmq_rpc_server']);
 
         // start supervisor and reload configuration
         $this->start();
@@ -207,13 +224,18 @@ class RabbitMqSupervisor
      */
     private function isProcessRunning($pid) {
         $state = array();
-        exec(sprintf('ps %d', $pid), $state);
+        exec(sprintf('ps -o pid %d', $pid), $state);
+
+        // remove alignment spaces from PIDs
+        $state = array_map('trim', $state);
 
         /*
          * ps will return at least one row, the column labels.
          * If the process is running ps will return a second row with its status.
+         *
+         * check if pid is in that list to work even if some systems ignore the pid filter parameter
          */
-        return 1 < count($state);
+        return 1 < count($state) && in_array($pid, $state);
     }
 
     /**
@@ -247,15 +269,26 @@ class RabbitMqSupervisor
 
     public function generateSupervisorConfiguration()
     {
-        $content = $this->templating->render(
-            'RabbitMqSupervisorBundle:Supervisor:supervisord.conf.twig',
-            array(
-                'pidFile' => $this->paths['pid_file'],
-                'sockFile' => $this->paths['sock_file'],
-                'logFile' => $this->paths['log_file'],
-                'workerConfigurationDirectory' => $this->paths['worker_configuration_directory'],
+        $configurationHelper = new ConfigurationHelper();
+        $content = $configurationHelper->getConfigurationStringFromDataArray(array(
+            'unix_http_server' => array(
+                'file' => $this->paths['sock_file'],
+                'chmod' => '0700'
+            ),
+            'supervisord' => array(
+                'logfile' => $this->paths['log_file'],
+                'pidfile' => $this->paths['pid_file']
+            ),
+            'rpcinterface:supervisor' => array(
+                'supervisor.rpcinterface_factory' => 'supervisor.rpcinterface:make_main_rpcinterface'
+            ),
+            'supervisorctl' => array(
+                'serverurl' => sprintf('unix://%s', $this->paths['sock_file'])
+            ),
+            'include' => array(
+                'files' => sprintf('%s*.conf', $this->paths['worker_configuration_directory'])
             )
-        );
+        ));
         file_put_contents(
             $this->createSupervisorConfigurationFilePath(),
             $content
@@ -287,17 +320,23 @@ class RabbitMqSupervisor
             if (!empty($messages)) {
                 $flags['messages'] = sprintf('--messages=%d', $messages);
             }
-            $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
-            if (!empty($memoryLimit)) {
-                $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
-            }
+
             $debug = $this->getConsumerOption($name, 'debug');
             if (!empty($debug)) {
                 $flags['debug'] = '--debug';
             }
-            $withoutSignals = $this->getConsumerOption($name, 'without-signals');
-            if (!empty($withoutSignals)) {
-                $flags['without-signals'] = '--without-signals';
+
+            //rabbitmq:rpc-server does not support options below
+            if ($baseCommand !== 'rabbitmq:rpc-server') {
+                $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
+                if (!empty($memoryLimit)) {
+                    $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
+                }
+
+                $withoutSignals = $this->getConsumerOption($name, 'without-signals');
+                if (!empty($withoutSignals)) {
+                    $flags['without-signals'] = '--without-signals';
+                }
             }
 
             $command = sprintf('%s %s %s', $commandName, $name, implode(' ', $flags));
@@ -305,18 +344,17 @@ class RabbitMqSupervisor
             $this->generateWorkerConfiguration(
                 $name,
                 array(
-                    'name' => $name,
-                    'command' => $command,
-                    'executablePath' => $executablePath,
-                    'workerOutputLog' => $this->paths['worker_output_log_file'],
-                    'workerErrorLog' => $this->paths['worker_error_log_file'],
-                    'numprocs' => (int)$this->getConsumerWorkerOption($name, 'count'),
-                    'options' => array(
+                    sprintf('program:%s', $name) => array(
+                        'command' => sprintf('php %s %s --env=%s', $executablePath, $command, $this->environment),
+                        'process_name' => '%(program_name)s%(process_num)02d',
+                        'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
                         'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
                         'autorestart' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'autorestart')),
                         'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
                         'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
                         'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
+                        'stdout_logfile' => $this->paths['worker_output_log_file'],
+                        'stderr_logfile' => $this->paths['worker_error_log_file']
                     )
                 )
             );
@@ -416,7 +454,8 @@ class RabbitMqSupervisor
      */
     public function generateWorkerConfiguration($fileName, $vars)
     {
-        $content = $this->templating->render('RabbitMqSupervisorBundle:Supervisor:program.conf.twig', $vars);
+        $configurationHelper = new ConfigurationHelper();
+        $content = $configurationHelper->getConfigurationStringFromDataArray($vars);
         file_put_contents(
             sprintf('%s%s.conf', $this->paths['worker_configuration_directory'], $fileName),
             $content
