@@ -65,7 +65,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
 
     public function prepend(ContainerBuilder $container)
     {
-        $attributeNames = array('consumers', 'multiple_consumers');
+        $attributeNames = array('consumers', 'multiple_consumers', 'rpc_servers');
         $attributes = array_combine($attributeNames, array_fill(0, count($attributeNames), []));
 
         foreach ($container->getExtensions() as $name => $extension) {

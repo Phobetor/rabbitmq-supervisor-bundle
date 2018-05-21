@@ -12,6 +12,7 @@ services:
             - "%phobetor_rabbitmq_supervisor.commands%"
             - "%phobetor_rabbitmq_supervisor.consumers%"
             - "%phobetor_rabbitmq_supervisor.multiple_consumers%"
+            - "%phobetor_rabbitmq_supervisor.rpc_servers%"
             - "%phobetor_rabbitmq_supervisor.config%"
             - "%kernel.environment%"
 

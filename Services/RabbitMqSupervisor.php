@@ -40,6 +40,11 @@ class RabbitMqSupervisor
     private $config;
 
     /**
+     * @var array
+     */
+    private $rpcServers;
+
+    /**
      * @var string
      */
     private $environment;
@@ -52,16 +57,18 @@ class RabbitMqSupervisor
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
+     * @param array $rpcServers
      * @param array $config
      * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $config, $environment)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $rpcServers, $config)
     {
         $this->supervisor = $supervisor;
         $this->paths = $paths;
         $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
+        $this->rpcServers = $rpcServers;
         $this->config = $config;
         $this->environment = $environment;
     }
@@ -111,6 +118,9 @@ class RabbitMqSupervisor
 
         // generate program configuration files for all multiple consumers
         $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer']);
+
+        //generate program configuration files for all rpc_server consumers
+        $this->generateWorkerConfigurations(array_keys($this->rpcServers), $this->commands['rabbitmq_rpc_server']);
 
         // start supervisor and reload configuration
         $this->start();
@@ -300,17 +310,23 @@ class RabbitMqSupervisor
             if (!empty($messages)) {
                 $flags['messages'] = sprintf('--messages=%d', $messages);
             }
-            $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
-            if (!empty($memoryLimit)) {
-                $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
-            }
+
             $debug = $this->getConsumerOption($name, 'debug');
             if (!empty($debug)) {
                 $flags['debug'] = '--debug';
             }
-            $withoutSignals = $this->getConsumerOption($name, 'without-signals');
-            if (!empty($withoutSignals)) {
-                $flags['without-signals'] = '--without-signals';
+
+            //rabbitmq:rpc-server does not support options below
+            if ($baseCommand !== 'rabbitmq:rpc-server') {
+                $memoryLimit = $this->getConsumerOption($name, 'memory-limit');
+                if (!empty($memoryLimit)) {
+                    $flags['memory-limit'] = sprintf('--memory-limit=%d', $memoryLimit);
+                }
+
+                $withoutSignals = $this->getConsumerOption($name, 'without-signals');
+                if (!empty($withoutSignals)) {
+                    $flags['without-signals'] = '--without-signals';
+                }
             }
 
             $command = sprintf('%s %s %s', $commandName, $name, implode(' ', $flags));
