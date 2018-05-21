@@ -56,9 +56,10 @@ class Supervisor implements LoggerAwareInterface
      * Execute a supervisorctl command
      *
      * @param $cmd string supervisorctl command
+     * @param $failOnError bool indicate if errors should raise an exception
      * @return \Symfony\Component\Process\Process
      */
-    public function execute($cmd)
+    public function execute($cmd, $failOnError = true)
     {
         $command = sprintf(
             'supervisorctl%1$s %2$s',
@@ -69,13 +70,15 @@ class Supervisor implements LoggerAwareInterface
         $p = new Process($command);
         $p->setWorkingDirectory($this->applicationDirectory);
         $p->run();
-        if ($p->getExitCode() !== 0) {
-            $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
-        }
-        $this->logger->debug('supervisorctl output: '. $p->getOutput());
+        if ($failOnError) {
+            if ($p->getExitCode() !== 0) {
+                $this->logger->critical(sprintf('supervisorctl returns code: %s', $p->getExitCodeText()));
+            }
+            $this->logger->debug('supervisorctl output: '. $p->getOutput());
 
-        if ($p->getExitCode() !== 0) {
-            throw new ProcessException($p);
+            if ($p->getExitCode() !== 0) {
+                throw new ProcessException($p);
+            }
         }
 
         return $p;
@@ -92,10 +95,12 @@ class Supervisor implements LoggerAwareInterface
 
     /**
      * Start supervisord if not already running
+     *
+     * @param bool $waitForSupervisord
      */
-    public function run()
+    public function run($waitForSupervisord = false)
     {
-        $result = $this->execute('status')->getOutput();
+        $result = $this->execute('status', false)->getOutput();
         if (strpos($result, 'sock no such file') || strpos($result, 'refused connection')) {
             $command = sprintf(
                 'supervisord%1$s%2$s',
@@ -105,7 +110,7 @@ class Supervisor implements LoggerAwareInterface
             $this->logger->debug('Executing: ' . $command);
             $p = new Process($command);
             $p->setWorkingDirectory($this->applicationDirectory);
-            if (!$this->waitForSupervisord) {
+            if (!$this->waitForSupervisord && !$waitForSupervisord) {
                 $p->start();
             } else {
                 $p->run();

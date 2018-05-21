@@ -132,8 +132,8 @@ class RabbitMqSupervisor
         //generate program configuration files for all rpc_server consumers
         $this->generateWorkerConfigurations(array_keys($this->rpcServers), $this->commands['rabbitmq_rpc_server']);
 
-        // start supervisor and reload configuration
-        $this->start();
+        // start supervisor (synchronously because the subsequent commands need it running) and reload configuration
+        $this->start(true);
         $this->supervisor->reloadAndUpdate();
     }
 
@@ -165,10 +165,12 @@ class RabbitMqSupervisor
 
     /**
      * Start supervisord and all processes
+     *
+     * @param bool $waitForSupervisord
      */
-    public function start()
+    public function start($waitForSupervisord = false)
     {
-        $this->supervisor->run();
+        $this->supervisor->run($waitForSupervisord);
     }
 
     /**
