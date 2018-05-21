@@ -9,7 +9,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 /**
  * This bundle uses the rabbit mq bundle's configuration
  */
-class Configuration  implements ConfigurationInterface
+class Configuration implements ConfigurationInterface
 {
     /**
      * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder

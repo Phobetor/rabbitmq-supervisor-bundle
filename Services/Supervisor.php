@@ -48,7 +48,8 @@ class Supervisor implements LoggerAwareInterface
     /**
      * @param bool $waitForSupervisord
      */
-    public function setWaitForSupervisord($waitForSupervisord) {
+    public function setWaitForSupervisord($waitForSupervisord)
+    {
         $this->waitForSupervisord = $waitForSupervisord;
     }
 

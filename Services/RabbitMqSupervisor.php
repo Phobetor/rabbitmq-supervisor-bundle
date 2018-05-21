@@ -83,7 +83,8 @@ class RabbitMqSupervisor
     /**
      * @param bool $waitForSupervisord
      */
-    public function setWaitForSupervisord($waitForSupervisord) {
+    public function setWaitForSupervisord($waitForSupervisord)
+    {
         $this->supervisor->setWaitForSupervisord($waitForSupervisord);
     }
 
@@ -221,7 +222,8 @@ class RabbitMqSupervisor
      * @param int $pid
      * @return bool
      */
-    private function isProcessRunning($pid) {
+    private function isProcessRunning($pid)
+    {
         $state = array();
         exec(sprintf('ps -o pid %d', $pid), $state);
 
@@ -242,8 +244,8 @@ class RabbitMqSupervisor
      *
      * @return null|int
      */
-    private function getSupervisorPid() {
-
+    private function getSupervisorPid()
+    {
         $pidPath = $this->paths['pid_file'];
 
         $pid = null;
@@ -254,7 +256,8 @@ class RabbitMqSupervisor
         return $pid;
     }
 
-    private function createPathDirectories() {
+    private function createPathDirectories()
+    {
         foreach ($this->paths as $path) {
             if ('/' !== substr($path, -1, 1)) {
                 $path = dirname($path);
@@ -298,8 +301,7 @@ class RabbitMqSupervisor
     {
         if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
             $executablePath = $_SERVER["SCRIPT_FILENAME"];
-        }
-        else {
+        } else {
             $executablePath = sprintf('%s/%s', getcwd(), $_SERVER["SCRIPT_FILENAME"]);
         }
 
@@ -308,8 +310,7 @@ class RabbitMqSupervisor
             $consumerCommand = $this->getConsumerOption($name, 'command');
             if (!empty($consumerCommand)) {
                 $commandName = $consumerCommand;
-            }
-            else {
+            } else {
                 $commandName = $baseCommand;
             }
 
@@ -364,7 +365,8 @@ class RabbitMqSupervisor
         }
     }
 
-    private function getConsumerOption($consumer, $key) {
+    private function getConsumerOption($consumer, $key)
+    {
         $option = $this->getIndividualConsumerOption($consumer, $key);
         if (null !== $option) {
             return $option;
@@ -373,7 +375,8 @@ class RabbitMqSupervisor
         return $this->getGeneralConsumerOption($key);
     }
 
-    private function getIndividualConsumerOption($consumer, $key) {
+    private function getIndividualConsumerOption($consumer, $key)
+    {
         if (empty($this->config['consumer']['individual'])) {
             return null;
         }
@@ -389,7 +392,8 @@ class RabbitMqSupervisor
         return $this->config['consumer']['individual'][$consumer][$key];
     }
 
-    private function getGeneralConsumerOption($key) {
+    private function getGeneralConsumerOption($key)
+    {
         if (!array_key_exists($key, $this->config['consumer']['general'])) {
             return null;
         }
@@ -397,7 +401,8 @@ class RabbitMqSupervisor
         return $this->config['consumer']['general'][$key];
     }
 
-    private function getConsumerWorkerOption($consumer, $key) {
+    private function getConsumerWorkerOption($consumer, $key)
+    {
         $option = $this->getIndividualConsumerWorkerOption($consumer, $key);
         if (null !== $option) {
             return $option;
@@ -406,7 +411,8 @@ class RabbitMqSupervisor
         return $this->getGeneralConsumerWorkerOption($key);
     }
 
-    private function getIndividualConsumerWorkerOption($consumer, $key) {
+    private function getIndividualConsumerWorkerOption($consumer, $key)
+    {
         if (empty($this->config['consumer']['individual'])) {
             return null;
         }
@@ -426,7 +432,8 @@ class RabbitMqSupervisor
         return $this->config['consumer']['individual'][$consumer]['worker'][$key];
     }
 
-    private function getGeneralConsumerWorkerOption($key) {
+    private function getGeneralConsumerWorkerOption($key)
+    {
         if (!array_key_exists('worker', $this->config['consumer']['general'])) {
             return null;
         }

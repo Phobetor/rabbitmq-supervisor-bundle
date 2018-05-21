@@ -41,7 +41,8 @@ class ControlCommand extends ContainerAwareCommand
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf(
-                    'Unknown command. Expected (start|stop|restart|hup), given "%s"', $input->getArgument('cmd')
+                    'Unknown command. Expected (start|stop|restart|hup), given "%s"',
+                    $input->getArgument('cmd')
                 ));
         }
     }
