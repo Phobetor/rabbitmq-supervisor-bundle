@@ -56,16 +56,12 @@ class Supervisor implements LoggerAwareInterface
      * Execute a supervisorctl command
      *
      * @param $cmd string supervisorctl command
-     * @param $failOnError bool indicate if errors should raise an exception
+     * @param $failOnError bool indicate id errors should raise an exception
      * @return \Symfony\Component\Process\Process
      */
     public function execute($cmd, $failOnError = true)
     {
-        $command = sprintf(
-            'supervisorctl%1$s %2$s',
-            $this->configurationParameter,
-            $cmd
-        );
+        $command = $this->createSupervisorControlCommand($cmd);
         $this->logger->debug('Executing: ' . $command);
         $p = new Process($command);
         $p->setWorkingDirectory($this->applicationDirectory);
@@ -85,32 +81,50 @@ class Supervisor implements LoggerAwareInterface
     }
 
     /**
+     * @param $cmd
+     * @return string
+     */
+    private function createSupervisorControlCommand($cmd)
+    {
+        return sprintf(
+            'supervisorctl%1$s %2$s',
+            $this->configurationParameter,
+            $cmd
+        );
+    }
+
+    /**
      * Update configuration and processes
      */
-    public function reloadAndUpdate()
+    public function runAndReload()
     {
-        $this->execute('reread');
-        $this->execute('update');
+
+        // start supervisor and reload configuration
+        $commands = [];
+        $commands[] = sprintf(' && %s', $this->createSupervisorControlCommand('reread'));
+        $commands[] = sprintf(' && %s', $this->createSupervisorControlCommand('update'));
+        $this->run(implode('', $commands));
     }
 
     /**
      * Start supervisord if not already running
      *
-     * @param bool $waitForSupervisord
+     * @param $followingCommand string command to execute after supervisord was started
      */
-    public function run($waitForSupervisord = false)
+    public function run($followingCommand = '')
     {
         $result = $this->execute('status', false)->getOutput();
         if (strpos($result, 'sock no such file') || strpos($result, 'refused connection')) {
             $command = sprintf(
-                'supervisord%1$s%2$s',
+                'supervisord%1$s%2$s%3$s',
                 $this->configurationParameter,
-                $this->identifierParameter
+                $this->identifierParameter,
+                $followingCommand
             );
             $this->logger->debug('Executing: ' . $command);
             $p = new Process($command);
             $p->setWorkingDirectory($this->applicationDirectory);
-            if (!$this->waitForSupervisord && !$waitForSupervisord) {
+            if (!$this->waitForSupervisord) {
                 $p->start();
             } else {
                 $p->run();
