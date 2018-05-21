@@ -67,7 +67,7 @@ class RabbitMqSupervisor
      * @param array $config
      * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config)
+    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config, $environment)
     {
         $this->supervisor = $supervisor;
         $this->paths = $paths;
