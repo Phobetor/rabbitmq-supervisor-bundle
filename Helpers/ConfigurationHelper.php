@@ -13,8 +13,7 @@ class ConfigurationHelper
                 $configurationString .= sprintf("[%s]\n", $key);
                 $configurationString .= $this->getConfigurationStringFromDataArray($value);
                 $configurationString .= "\n";
-            }
-            else {
+            } else {
                 $configurationString .= sprintf("%s=%s\n", $key, $value);
             }
         }

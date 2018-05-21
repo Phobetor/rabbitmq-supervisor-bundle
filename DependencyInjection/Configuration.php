@@ -9,7 +9,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 /**
  * This bundle uses the rabbit mq bundle's configuration
  */
-class Configuration  implements ConfigurationInterface
+class Configuration implements ConfigurationInterface
 {
     /**
      * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder
@@ -101,7 +101,8 @@ class Configuration  implements ConfigurationInterface
         $this->addGeneralConsumerConfiguration($general);
 
         $individualPrototype = $consumerChildren
-                        ->arrayNode('individual')
+                        ->arrayNode('individual');
+        $individualPrototype
                             ->useAttributeAsKey('consumer')
                             ->prototype('array');
         $this->addIndividualConsumerConfiguration($individualPrototype);
