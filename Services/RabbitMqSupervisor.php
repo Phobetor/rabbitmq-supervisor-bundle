@@ -37,12 +37,17 @@ class RabbitMqSupervisor
     /**
      * @var array
      */
-    private $config;
+    private $batchConsumers;
 
     /**
      * @var array
      */
     private $rpcServers;
+
+    /**
+     * @var array
+     */
+    private $config;
 
     /**
      * @var string
@@ -57,17 +62,19 @@ class RabbitMqSupervisor
      * @param array $commands
      * @param array $consumers
      * @param array $multipleConsumers
+     * @param array $batchConsumers
      * @param array $rpcServers
      * @param array $config
      * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $rpcServers, $config)
+    public function __construct(Supervisor $supervisor, EngineInterface $templating, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config)
     {
         $this->supervisor = $supervisor;
         $this->paths = $paths;
         $this->commands = $commands;
         $this->consumers = $consumers;
         $this->multipleConsumers = $multipleConsumers;
+        $this->batchConsumers = $batchConsumers;
         $this->rpcServers = $rpcServers;
         $this->config = $config;
         $this->environment = $environment;
@@ -118,6 +125,9 @@ class RabbitMqSupervisor
 
         // generate program configuration files for all multiple consumers
         $this->generateWorkerConfigurations(array_keys($this->multipleConsumers), $this->commands['rabbitmq_multiple_consumer']);
+
+        // generate program configuration files for all batch consumers
+        $this->generateWorkerConfigurations(array_keys($this->batchConsumers), $this->commands['rabbitmq_batch_consumer']);
 
         //generate program configuration files for all rpc_server consumers
         $this->generateWorkerConfigurations(array_keys($this->rpcServers), $this->commands['rabbitmq_rpc_server']);
@@ -306,7 +316,7 @@ class RabbitMqSupervisor
 
             // build flags from consumer configuration
             $flags = array();
-            $messages = $this->getConsumerOption($name, 'messages');
+            $messages = in_array($name, $this->batchConsumers) ? $this->getConsumerOption($name, 'messages') : null;
             if (!empty($messages)) {
                 $flags['messages'] = sprintf('--messages=%d', $messages);
             }
