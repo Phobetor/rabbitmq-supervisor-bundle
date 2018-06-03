@@ -15,6 +15,7 @@ services:
             - "%phobetor_rabbitmq_supervisor.batch_consumers%"
             - "%phobetor_rabbitmq_supervisor.rpc_servers%"
             - "%phobetor_rabbitmq_supervisor.config%"
+            - "%kernel.root_dir%"
             - "%kernel.environment%"
 
     phobetor_rabbitmq_supervisor.supervisor_service:

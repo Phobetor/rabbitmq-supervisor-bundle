@@ -52,6 +52,11 @@ class RabbitMqSupervisor
     /**
      * @var string
      */
+    private $rootDir;
+
+    /**
+     * @var string
+     */
     private $environment;
 
     /**
@@ -65,9 +70,10 @@ class RabbitMqSupervisor
      * @param array $batchConsumers
      * @param array $rpcServers
      * @param array $config
+     * @param string $kernelRootDir
      * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config, $environment)
+    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config, $kernelRootDir, $environment)
     {
         $this->supervisor = $supervisor;
         $this->paths = $paths;
@@ -77,6 +83,7 @@ class RabbitMqSupervisor
         $this->batchConsumers = $batchConsumers;
         $this->rpcServers = $rpcServers;
         $this->config = $config;
+        $this->rootDir = dirname($kernelRootDir);
         $this->environment = $environment;
     }
 
@@ -299,11 +306,21 @@ class RabbitMqSupervisor
 
     private function generateWorkerConfigurations($names, $baseCommand)
     {
-        if (0 === strpos($_SERVER["SCRIPT_FILENAME"], '/')) {
-            $executablePath = $_SERVER["SCRIPT_FILENAME"];
-        } else {
-            $executablePath = sprintf('%s/%s', getcwd(), $_SERVER["SCRIPT_FILENAME"]);
+        // try different possible console paths (realpath() will throw away the not existing ones)
+        $consolePaths = [];
+        foreach (['bin', 'app'] as $consoleDirectory) {
+            $consolePath = sprintf('%s/%s/console', $this->rootDir, $consoleDirectory);
+            if (!empty(realpath($consolePath))) {
+                $consolePaths[] = $consolePath;
+            }
         }
+
+        // fall back to standard console path if none of the paths was valid
+        if (empty($consolePaths)) {
+            $consolePaths[] = sprintf('%s/%s/console', $this->rootDir, 'bin');
+        }
+
+        $executablePath = $consolePaths[0];
 
         foreach ($names as $name) {
             // override command when set in consumer configuration
