@@ -1,5 +1,5 @@
 {
-    "name": "phobetor/rabbitmq-supervisor-bundle",
+    "name": "ermeo/rabbitmq-supervisor-bundle",
     "type": "library",
     "license": "MIT",
     "description" : "Symfony bundle to automatically create and update supervisor configurations for RabbitMQ consumer daemons",
@@ -11,11 +11,11 @@
         "symfony3",
         "symfony4"
     ],
-    "homepage": "https://github.com/Phobetor/rabbitmq-supervisor-bundle",
+    "homepage": "https://github.com/ermeo/rabbitmq-supervisor-bundle",
     "authors": [
         {
             "name": "Andreas Kintzinger",
-            "homepage": "https://github.com/Phobetor/",
+            "homepage": "https://github.com/ermeo/",
             "role": "Developer"
         }
     ],
