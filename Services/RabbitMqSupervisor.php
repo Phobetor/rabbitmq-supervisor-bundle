@@ -370,6 +370,7 @@ class RabbitMqSupervisor
                         'process_name' => '%(program_name)s%(process_num)02d',
                         'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
                         'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
+                        'startretries' => $this->getConsumerWorkerOption($name, 'startretries'),
                         'autorestart' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'autorestart')),
                         'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
                         'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
