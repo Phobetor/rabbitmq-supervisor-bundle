@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('worker_count')->defaultNull()->end()
                 ->scalarNode('supervisor_instance_identifier')->defaultValue('symfony2')->end()
+                ->scalarNode('sock_file_permissions')->defaultValue('0700')->end()
             ->end();
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
