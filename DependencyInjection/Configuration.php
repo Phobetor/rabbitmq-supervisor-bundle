@@ -16,9 +16,14 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $tree = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('rabbit_mq_supervisor');
 
-        $rootNode = $tree->root('rabbit_mq_supervisor');
+        // Keep compatibility with symfony/config < 4.2
+        if (\method_exists($treeBuilder, 'getRootNode')) {
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            $rootNode = $treeBuilder->root('rabbit_mq_supervisor');
+        }
 
         $rootNode
             ->children()
@@ -29,7 +34,7 @@ class Configuration implements ConfigurationInterface
         $this->addCommands($rootNode);
         $this->addConsumer($rootNode);
 
-        return $tree;
+        return $treeBuilder;
     }
 
     /**
