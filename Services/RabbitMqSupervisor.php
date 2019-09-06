@@ -383,6 +383,10 @@ class RabbitMqSupervisor
                 'stderr_logfile' => $this->paths['worker_error_log_file']
             );
 
+            if ($this->getGeneralConsumerWorkerOption('user')) {
+                $programOptions['user'] = $this->getGeneralConsumerWorkerOption('user');
+            }
+
             $this->generateWorkerConfiguration(
                 $name,
                 array(
