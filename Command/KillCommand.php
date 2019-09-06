@@ -2,12 +2,11 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class KillCommand extends ContainerAwareCommand
+class KillCommand extends AbstractRabbitMqSupervisorAwareCommand
 {
     protected function configure()
     {
@@ -20,8 +19,6 @@ class KillCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor $handler */
-        $handler = $this->getContainer()->get('phobetor_rabbitmq_supervisor');
-        $handler->kill($input->getArgument('signal'));
+        $this->rabbitMqSupervisor->kill($input->getArgument('signal'));
     }
 }
