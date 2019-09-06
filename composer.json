@@ -1,6 +1,6 @@
 {
     "name": "phobetor/rabbitmq-supervisor-bundle",
-    "type": "library",
+    "type": "symfony-bundle",
     "license": "MIT",
     "description" : "Symfony bundle to automatically create and update supervisor configurations for RabbitMQ consumer daemons",
     "keywords": [
