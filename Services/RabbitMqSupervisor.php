@@ -60,6 +60,11 @@ class RabbitMqSupervisor
     private $environment;
 
     /**
+     * @var string
+     */
+    private $sockFilePermissions;
+
+    /**
      * Initialize Handler
      *
      * @param \Phobetor\RabbitMqSupervisorBundle\Services\Supervisor $supervisor
@@ -70,10 +75,11 @@ class RabbitMqSupervisor
      * @param array $batchConsumers
      * @param array $rpcServers
      * @param array $config
+     * @param $sockFilePermissions
      * @param string $kernelRootDir
      * @param string $environment
      */
-    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config, $kernelRootDir, $environment)
+    public function __construct(Supervisor $supervisor, array $paths, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config, $sockFilePermissions, $kernelRootDir, $environment)
     {
         $this->supervisor = $supervisor;
         $this->paths = $paths;
@@ -83,6 +89,7 @@ class RabbitMqSupervisor
         $this->batchConsumers = $batchConsumers;
         $this->rpcServers = $rpcServers;
         $this->config = $config;
+        $this->sockFilePermissions = $sockFilePermissions;
         $this->rootDir = dirname($kernelRootDir);
         $this->environment = $environment;
     }
@@ -282,7 +289,7 @@ class RabbitMqSupervisor
         $content = $configurationHelper->getConfigurationStringFromDataArray(array(
             'unix_http_server' => array(
                 'file' => $this->paths['sock_file'],
-                'chmod' => '0700'
+                'chmod' => $this->sockFilePermissions
             ),
             'supervisord' => array(
                 'logfile' => $this->paths['log_file'],
@@ -367,12 +374,13 @@ class RabbitMqSupervisor
                 'process_name' => '%(program_name)s%(process_num)02d',
                 'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
                 'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
+                'startretries' => $this->getConsumerWorkerOption($name, 'startretries'),
                 'autorestart' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'autorestart')),
                 'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
                 'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
                 'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
                 'stdout_logfile' => $this->paths['worker_output_log_file'],
-                'stderr_logfile' => $this->paths['worker_error_log_file'],
+                'stderr_logfile' => $this->paths['worker_error_log_file']
             );
 
             if ($this->getGeneralConsumerWorkerOption('user')) {
@@ -381,7 +389,9 @@ class RabbitMqSupervisor
 
             $this->generateWorkerConfiguration(
                 $name,
-                array(sprintf('program:%s', $name) => $programOptions)
+                array(
+                    sprintf('program:%s', $name) => $programOptions
+                )
             );
         }
     }

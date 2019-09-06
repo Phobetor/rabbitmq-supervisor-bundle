@@ -2,13 +2,12 @@
 
 namespace Phobetor\RabbitMqSupervisorBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ControlCommand extends ContainerAwareCommand
+class ControlCommand extends AbstractRabbitMqSupervisorAwareCommand
 {
     protected function configure()
     {
@@ -22,22 +21,20 @@ class ControlCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var \Phobetor\RabbitMqSupervisorBundle\Services\RabbitMqSupervisor $handler */
-        $handler = $this->getContainer()->get('phobetor_rabbitmq_supervisor');
-        $handler->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
+        $this->rabbitMqSupervisor->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
 
         switch ($input->getArgument('cmd')) {
             case 'start':
-                $handler->start();
+                $this->rabbitMqSupervisor->start();
                 break;
             case 'stop':
-                $handler->stop();
+                $this->rabbitMqSupervisor->stop();
                 break;
             case 'restart':
-                $handler->restart();
+                $this->rabbitMqSupervisor->restart();
                 break;
             case 'hup':
-                $handler->hup();
+                $this->rabbitMqSupervisor->hup();
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf(

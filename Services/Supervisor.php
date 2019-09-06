@@ -64,7 +64,7 @@ class Supervisor implements LoggerAwareInterface
     {
         $command = $this->createSupervisorControlCommand($cmd);
         $this->logger->debug('Executing: ' . $command);
-        $p = new Process($command);
+        $p = $this->getProcess($command);
         $p->setWorkingDirectory($this->applicationDirectory);
         $p->run();
         if ($failOnError) {
@@ -123,7 +123,7 @@ class Supervisor implements LoggerAwareInterface
                 $followingCommand
             );
             $this->logger->debug('Executing: ' . $command);
-            $p = new Process($command);
+            $p = $this->getProcess($command);
             $p->setWorkingDirectory($this->applicationDirectory);
             if (!$this->waitForSupervisord) {
                 $p->start();
@@ -136,5 +136,19 @@ class Supervisor implements LoggerAwareInterface
                 $this->logger->debug('supervisord output: '. $p->getOutput());
             }
         }
+    }
+
+    /**
+     * @param string $command
+     * @return Process
+     */
+    private function getProcess($command)
+    {
+        // BC layer for Symfony 4.1 and older
+        if (\method_exists(Process::class, 'fromShellCommandline')) {
+            return Process::fromShellCommandline($command);
+        }
+
+        return new Process($command);
     }
 }

@@ -16,20 +16,26 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $tree = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('rabbit_mq_supervisor');
 
-        $rootNode = $tree->root('rabbit_mq_supervisor');
+        // Keep compatibility with symfony/config < 4.2
+        if (\method_exists($treeBuilder, 'getRootNode')) {
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            $rootNode = $treeBuilder->root('rabbit_mq_supervisor');
+        }
 
         $rootNode
             ->children()
                 ->scalarNode('worker_count')->defaultNull()->end()
                 ->scalarNode('supervisor_instance_identifier')->defaultValue('symfony2')->end()
+                ->scalarNode('sock_file_permissions')->defaultValue('0700')->end()
             ->end();
         $this->addPaths($rootNode);
         $this->addCommands($rootNode);
         $this->addConsumer($rootNode);
 
-        return $tree;
+        return $treeBuilder;
     }
 
     /**
@@ -135,12 +141,16 @@ class Configuration implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                     ->children()
                         ->integerNode('count')
-                            ->min(1)
+                            ->min(0)
                             ->defaultValue(1)
                         ->end()
                         ->integerNode('startsecs')
                             ->min(0)
                             ->defaultValue(2)
+                        ->end()
+                        ->integerNode('startretries')
+                            ->min(1)
+                            ->defaultValue(3)
                         ->end()
                         ->booleanNode('autorestart')
                             ->defaultTrue()
@@ -194,12 +204,16 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('worker')
                     ->children()
                         ->integerNode('count')
-                            ->min(1)
+                            ->min(0)
                             ->defaultNull()
                         ->end()
                         ->integerNode('startsecs')
                             ->min(0)
                             ->defaultNull()
+                        ->end()
+                        ->integerNode('startretries')
+                            ->min(1)
+                            ->defaultValue(3)
                         ->end()
                         ->booleanNode('autorestart')
                             ->defaultNull()
