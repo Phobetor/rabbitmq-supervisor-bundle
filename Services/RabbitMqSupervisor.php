@@ -369,22 +369,30 @@ class RabbitMqSupervisor
 
             $command = sprintf('%s %s %s', $commandName, $name, implode(' ', $flags));
 
+            $programOptions = [
+                'command' => sprintf(
+                    '%s %s %s --env=%s',
+                    $this->paths['php_executable'],
+                    $executablePath,
+                    $command,
+                    $this->environment
+                ),
+                'process_name' => '%(program_name)s%(process_num)02d',
+                'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
+                'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
+                'startretries' => $this->getConsumerWorkerOption($name, 'startretries'),
+                'autorestart' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'autorestart')),
+                'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
+                'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
+                'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
+                'stdout_logfile' => $this->paths['worker_output_log_file'],
+                'stderr_logfile' => $this->paths['worker_error_log_file']
+            ];
+
             $this->generateWorkerConfiguration(
                 $name,
                 array(
-                    sprintf('program:%s', $name) => array(
-                        'command' => sprintf('%s %s %s --env=%s', $this->paths['php_executable'], $executablePath, $command, $this->environment),
-                        'process_name' => '%(program_name)s%(process_num)02d',
-                        'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
-                        'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
-                        'startretries' => $this->getConsumerWorkerOption($name, 'startretries'),
-                        'autorestart' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'autorestart')),
-                        'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
-                        'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
-                        'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
-                        'stdout_logfile' => $this->paths['worker_output_log_file'],
-                        'stderr_logfile' => $this->paths['worker_error_log_file']
-                    )
+                    sprintf('program:%s', $name) => $programOptions
                 )
             );
         }
