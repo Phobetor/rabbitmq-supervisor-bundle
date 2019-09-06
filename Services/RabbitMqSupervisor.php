@@ -272,7 +272,11 @@ class RabbitMqSupervisor
 
     private function createPathDirectories()
     {
-        foreach ($this->paths as $path) {
+        foreach ($this->paths as $key => $path) {
+            if ('php_executable' === $key) {
+                continue;
+            }
+
             if ('/' !== substr($path, -1, 1)) {
                 $path = dirname($path);
             }
