@@ -29,7 +29,8 @@
         "oldsound/rabbitmq-bundle": "The abandoned older version of php-amqplib/rabbitmq-bundle which also works"
     },
     "autoload": {
-        "psr-0": { "Phobetor\\RabbitMqSupervisorBundle\\": "" }
-    },
-    "target-dir": "Phobetor/RabbitMqSupervisorBundle"
+        "psr-4": {
+            "Phobetor\\RabbitMqSupervisorBundle\\": ""
+        }
+    }
 }
