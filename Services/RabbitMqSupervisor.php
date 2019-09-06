@@ -369,14 +369,8 @@ class RabbitMqSupervisor
 
             $command = sprintf('%s %s %s', $commandName, $name, implode(' ', $flags));
 
-            $programOptions = [
-                'command' => sprintf(
-                    '%s %s %s --env=%s',
-                    $this->paths['php_executable'],
-                    $executablePath,
-                    $command,
-                    $this->environment
-                ),
+            $programOptions = array(
+                'command' => sprintf('%s %s %s --env=%s', $this->paths['php_executable'], $executablePath, $command, $this->environment),
                 'process_name' => '%(program_name)s%(process_num)02d',
                 'numprocs' => (int) $this->getConsumerWorkerOption($name, 'count'),
                 'startsecs' => $this->getConsumerWorkerOption($name, 'startsecs'),
@@ -387,7 +381,7 @@ class RabbitMqSupervisor
                 'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
                 'stdout_logfile' => $this->paths['worker_output_log_file'],
                 'stderr_logfile' => $this->paths['worker_error_log_file']
-            ];
+            );
 
             $this->generateWorkerConfiguration(
                 $name,
