@@ -20,5 +20,7 @@ class KillCommand extends AbstractRabbitMqSupervisorAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->rabbitMqSupervisor->kill($input->getArgument('signal'));
+        
+        return 0;
     }
 }
