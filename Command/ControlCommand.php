@@ -41,8 +41,8 @@ class ControlCommand extends AbstractRabbitMqSupervisorAwareCommand
                     'Unknown command. Expected (start|stop|restart|hup), given "%s"',
                     $input->getArgument('cmd')
                 ));
-                
-            return 0;
         }
+        
+        return 0;
     }
 }
