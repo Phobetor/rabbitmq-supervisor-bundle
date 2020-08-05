@@ -21,5 +21,7 @@ class RebuildCommand extends AbstractRabbitMqSupervisorAwareCommand
     {
         $this->rabbitMqSupervisor->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
         $this->rabbitMqSupervisor->rebuild();
+        
+        return 0;
     }
 }
