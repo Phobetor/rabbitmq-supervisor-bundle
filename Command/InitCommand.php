@@ -18,5 +18,7 @@ class InitCommand extends AbstractRabbitMqSupervisorAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->rabbitMqSupervisor->init();
+        
+        return 0;
     }
 }
