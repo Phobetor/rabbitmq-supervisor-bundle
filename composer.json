@@ -9,7 +9,8 @@
         "supervisord",
         "symfony2",
         "symfony3",
-        "symfony4"
+        "symfony4",
+        "symfony5",
     ],
     "homepage": "https://github.com/Phobetor/rabbitmq-supervisor-bundle",
     "authors": [
