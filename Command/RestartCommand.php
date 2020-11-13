@@ -21,5 +21,7 @@ class RestartCommand extends AbstractRabbitMqSupervisorAwareCommand
     {
         $this->rabbitMqSupervisor->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
         $this->rabbitMqSupervisor->restart();
+        
+        return 0;
     }
 }

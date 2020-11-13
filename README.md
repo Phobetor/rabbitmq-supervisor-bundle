@@ -40,6 +40,18 @@ public function registerBundles()
 }
 ```
 
+Symfony 5:
+
+```php
+// config/bundles.php
+return [
+    ...
+    Phobetor\RabbitMqSupervisorBundle\RabbitMqSupervisorBundle::class => ["all" => true],
+    ...
+];
+
+```
+
 ## Zero Configuration
 
 RabbitMQ supervisor bundle works out of the box with a predefined configuration. If you leave it this way you will end
