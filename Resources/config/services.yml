@@ -9,6 +9,7 @@ services:
         arguments:
             - "@phobetor_rabbitmq_supervisor.supervisor_service"
             - "%phobetor_rabbitmq_supervisor.paths%"
+            - "%phobetor_rabbitmq_supervisor.inet_http_server%"
             - "%phobetor_rabbitmq_supervisor.commands%"
             - "%phobetor_rabbitmq_supervisor.consumers%"
             - "%phobetor_rabbitmq_supervisor.multiple_consumers%"
