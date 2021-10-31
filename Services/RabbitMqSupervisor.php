@@ -307,6 +307,14 @@ class RabbitMqSupervisor
             ),
             'include' => array(
                 'files' => sprintf('%s*.conf', $this->paths['worker_configuration_directory'])
+            ),
+            'group:all' => array(
+                'programs' => implode(',', array_merge(
+                    array_keys($this->consumers),
+                    array_keys($this->multipleConsumers),
+                    array_keys($this->batchConsumers),
+                    array_keys($this->rpcServers)
+                ))
             )
         ));
         file_put_contents(
