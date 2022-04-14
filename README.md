@@ -72,10 +72,8 @@ supervisor/
         ├── queue3.conf
         └── queue4.conf
 ```
-In symfony 2 and 3 this will be placed inside your `app/` directory.
 
-Caution with symfony 4: to not have this inside of your `src/` directory you need to set the paths to suit your needs.
-E. g. to use the standard structure inside of the `var/` directory, use this:
+If you want to use the standard structure inside of the `var/` directory, change the configuration like this:
 ```yml
 rabbit_mq_supervisor:
     paths:
