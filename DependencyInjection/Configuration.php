@@ -32,6 +32,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('sock_file_permissions')->defaultValue('0700')->end()
             ->end();
         $this->addPaths($rootNode);
+        $this->addInetHttpServer($rootNode);
         $this->addCommands($rootNode);
         $this->addConsumer($rootNode);
 
@@ -51,15 +52,37 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('paths')
                 ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('workspace_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/')->end()
-                        ->scalarNode('configuration_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
-                        ->scalarNode('pid_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
-                        ->scalarNode('sock_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
-                        ->scalarNode('log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/supervisord.log')->end()
-                        ->scalarNode('worker_configuration_directory')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/worker/')->end()
-                        ->scalarNode('worker_output_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
-                        ->scalarNode('worker_error_log_file')->defaultValue('%kernel.root_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
+                        ->scalarNode('workspace_directory')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/')->end()
+                        ->scalarNode('configuration_file')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/supervisord.conf')->end()
+                        ->scalarNode('pid_file')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/supervisor.pid')->end()
+                        ->scalarNode('sock_file')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/supervisor.sock')->end()
+                        ->scalarNode('log_file')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/supervisord.log')->end()
+                        ->scalarNode('worker_configuration_directory')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/worker/')->end()
+                        ->scalarNode('worker_output_log_file')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/logs/stdout.log')->end()
+                        ->scalarNode('worker_error_log_file')->defaultValue('%phobetor_rabbitmq_supervisor.project_dir%/supervisor/%kernel.environment%/logs/stderr.log')->end()
                         ->scalarNode('php_executable')->defaultValue('php')->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * Add inet_http_server configuration
+     *
+     * @param ArrayNodeDefinition $node
+     */
+    protected function addInetHttpServer(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('inet_http_server')
+                ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultFalse()->end()
+                        ->scalarNode('port')->defaultNull()->end()
+                        ->scalarNode('username')->defaultNull()->end()
+                        ->scalarNode('password')->defaultNull()->end()
                     ->end()
                 ->end()
             ->end()
