@@ -57,7 +57,7 @@ class RabbitMqSupervisor
     /**
      * @var string
      */
-    private $rootDir;
+    private $projectDir;
 
     /**
      * @var string
@@ -82,11 +82,10 @@ class RabbitMqSupervisor
      * @param array $rpcServers
      * @param array $config
      * @param $sockFilePermissions
-     * @param string $kernelRootDir
+     * @param string $projectDir
      * @param string $environment
      */
-
-    public function __construct(Supervisor $supervisor, array $paths, array $inet_http_server, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config, $sockFilePermissions, $kernelRootDir, $environment)
+    public function __construct(Supervisor $supervisor, array $paths, array $inet_http_server, array $commands, $consumers, $multipleConsumers, $batchConsumers, $rpcServers, $config, $sockFilePermissions, $projectDir, $environment)
     {
         $this->supervisor = $supervisor;
         $this->paths = $paths;
@@ -98,7 +97,7 @@ class RabbitMqSupervisor
         $this->rpcServers = $rpcServers;
         $this->config = $config;
         $this->sockFilePermissions = $sockFilePermissions;
-        $this->rootDir = dirname($kernelRootDir);
+        $this->projectDir = $projectDir;
         $this->environment = $environment;
     }
 
@@ -344,7 +343,7 @@ class RabbitMqSupervisor
         // try different possible console paths (realpath() will throw away the not existing ones)
         $consolePaths = [];
         foreach (['bin', 'app'] as $consoleDirectory) {
-            $consolePath = sprintf('%s/%s/console', $this->rootDir, $consoleDirectory);
+            $consolePath = sprintf('%s/%s/console', $this->projectDir, $consoleDirectory);
             if (!empty(realpath($consolePath))) {
                 $consolePaths[] = $consolePath;
             }
@@ -352,7 +351,7 @@ class RabbitMqSupervisor
 
         // fall back to standard console path if none of the paths was valid
         if (empty($consolePaths)) {
-            $consolePaths[] = sprintf('%s/%s/console', $this->rootDir, 'bin');
+            $consolePaths[] = sprintf('%s/%s/console', $this->projectDir, 'bin');
         }
 
         $executablePath = $consolePaths[0];
