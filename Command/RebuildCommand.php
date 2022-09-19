@@ -13,13 +13,16 @@ class RebuildCommand extends AbstractRabbitMqSupervisorAwareCommand
         $this
             ->setName('rabbitmq-supervisor:rebuild')
             ->setDescription('Stop supervisord, rebuild supervisor worker configuration for all RabbitMQ consumer and start supervisord again.')
-            ->addOption('wait-for-supervisord', null, InputOption::VALUE_NONE)
+            ->addOption('wait-for-supervisord', null, InputOption::VALUE_NONE, 'this option is ignored. waiting by default')
+            ->addOption('no-wait-for-supervisord', null, InputOption::VALUE_NONE)
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->rabbitMqSupervisor->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
+        $this->rabbitMqSupervisor->setWaitForSupervisord(!(bool) $input->getOption('no-wait-for-supervisord'));
         $this->rabbitMqSupervisor->rebuild();
+        
+        return 0;
     }
 }

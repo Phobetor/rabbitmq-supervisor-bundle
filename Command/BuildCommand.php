@@ -21,5 +21,7 @@ class BuildCommand extends AbstractRabbitMqSupervisorAwareCommand
     {
         $this->rabbitMqSupervisor->setWaitForSupervisord((bool) $input->getOption('wait-for-supervisord'));
         $this->rabbitMqSupervisor->build();
+        
+        return 0;
     }
 }

@@ -42,5 +42,7 @@ class ControlCommand extends AbstractRabbitMqSupervisorAwareCommand
                     $input->getArgument('cmd')
                 ));
         }
+        
+        return 0;
     }
 }
