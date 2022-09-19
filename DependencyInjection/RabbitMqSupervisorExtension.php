@@ -19,6 +19,12 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        if ($container->hasParameter('kernel.root_dir')) {
+            $container->setParameter('phobetor_rabbitmq_supervisor.project_dir', '%kernel.root_dir%/..');
+        } else {
+            $container->setParameter('phobetor_rabbitmq_supervisor.project_dir', '%kernel.project_dir%');
+        }
+
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
