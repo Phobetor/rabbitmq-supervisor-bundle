@@ -40,7 +40,7 @@ public function registerBundles()
 }
 ```
 
-Symfony 5:
+Symfony 5 & 6:
 
 ```php
 // config/bundles.php
