@@ -391,8 +391,8 @@ class RabbitMqSupervisor
                 'stopsignal' => $this->getConsumerWorkerOption($name, 'stopsignal'),
                 'stopasgroup' => $this->transformBoolToString($this->getConsumerWorkerOption($name, 'stopasgroup')),
                 'stopwaitsecs' => $this->getConsumerWorkerOption($name, 'stopwaitsecs'),
-                'stdout_logfile' => $this->paths['worker_output_log_file'],
-                'stderr_logfile' => $this->paths['worker_error_log_file']
+				'stdout_logfile' => $this->workerSpecificLogFile($this->paths['worker_output_log_file'], $name),
+                'stderr_logfile' => $this->workerSpecificLogFile($this->paths['worker_error_log_file'], $name)            
             );
 
             if ($this->getGeneralConsumerWorkerOption('user')) {
@@ -406,6 +406,17 @@ class RabbitMqSupervisor
                 )
             );
         }
+    }
+
+    private function workerSpecificLogFile($originalFileName, $suffix) {
+        $extension = ".log";
+        $pos = strrpos($originalFileName, $extension); 
+
+        if ($pos === false) {
+            return $originalFileName;
+        }
+
+        return substr_replace($originalFileName, "_" . $suffix, $pos, 0);
     }
 
     private function getConsumerOption($consumer, $key)
