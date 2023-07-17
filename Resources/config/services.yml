@@ -16,7 +16,7 @@ services:
             - "%phobetor_rabbitmq_supervisor.rpc_servers%"
             - "%phobetor_rabbitmq_supervisor.config%"
             - "%phobetor_rabbitmq_supervisor.sock_file_permissions%"
-            - "%kernel.root_dir%"
+            - "%kernel.project_dir%"
             - "%kernel.environment%"
 
     phobetor_rabbitmq_supervisor.supervisor_service:
