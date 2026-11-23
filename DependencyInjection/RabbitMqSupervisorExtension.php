@@ -100,7 +100,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
         }
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'rabbit_mq_supervisor';
     }
