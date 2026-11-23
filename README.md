@@ -9,10 +9,15 @@ Symfony bundle to automatically create and update [supervisor](http://supervisor
 
 If you use `php-amqplib/rabbitmq-bundle` to handle the communication with RabbitMQ, just install [supervisor](http://supervisord.org/), add this bundle and run
 ```sh
-$ app/console rabbitmq-supervisor:rebuild
+$ bin/console rabbitmq-supervisor:rebuild
 ```
 to get a running `supervisord` instance that automatically manages all your consumer daemons.
 When your worker configuration or your code changes, run the command again and all the daemons will be updated.
+
+## Requirements
+
+* PHP 7.1 or higher
+* Symfony 2.5 up to 7.x
 
 ## Installation
 
@@ -23,11 +28,22 @@ Install [supervisor](http://supervisord.org/). e. g. on debian based distributio
 
 Add bundle via composer
 ```sh
-$ php composer require phobetor/rabbitmq-supervisor-bundle
+$ composer require phobetor/rabbitmq-supervisor-bundle
 ```
 This will install the bundle to your project’s `vendor` directory.
 
-If your are not using Symfony Flex, also add the bundle to your project’s `AppKernel`:
+If you are using Symfony Flex, the bundle is registered automatically. Otherwise register it yourself.
+
+Symfony 4 to 7:
+```php
+// config/bundles.php
+return [
+    // […]
+    Phobetor\RabbitMqSupervisorBundle\RabbitMqSupervisorBundle::class => ['all' => true],
+];
+```
+
+Symfony 2 & 3:
 ```php
 // app/AppKernel.php
 
@@ -40,17 +56,7 @@ public function registerBundles()
 }
 ```
 
-Symfony 5 & 6:
-
-```php
-// config/bundles.php
-return [
-    ...
-    Phobetor\RabbitMqSupervisorBundle\RabbitMqSupervisorBundle::class => ["all" => true],
-    ...
-];
-
-```
+The examples below use `bin/console`. On Symfony 2 use `app/console` instead.
 
 ## Zero Configuration
 
@@ -91,7 +97,7 @@ rabbit_mq_supervisor:
 
 To see all configuration options run
 ```sh
-$ console config:dump-reference RabbitMqSupervisorBundle
+$ bin/console config:dump-reference RabbitMqSupervisorBundle
 ```
 
 ### BC break when updating from v1.* to v2.*
@@ -102,17 +108,27 @@ after the command name.
 Commands will by default no longer wait for `supervisord` to complete. If you need this (e. g. to get feedback on
 errors) use the `--wait-for-supervisord` option.
 
+### BC break when updating from v3.* to v4.*
+PHP 7.1 or higher is required now. The commands and the extension declare native return types
+(`configure(): void`, `execute(): int`, `load(): void`, `prepend(): void`). If you extend one of these classes and
+override such a method, add the same return type to your method.
+
 ## Usage
 
 Build or rebuild the supervisor and worker configuration and start the daemon:
 ```sh
-$ console rabbitmq-supervisor:rebuild
+$ bin/console rabbitmq-supervisor:rebuild
 ```
 
 Control the supervisord daemon:
 ```sh
-$ console rabbitmq-supervisor:control stop
-$ console rabbitmq-supervisor:control start
-$ console rabbitmq-supervisor:control restart
-$ console rabbitmq-supervisor:control hup
+$ bin/console rabbitmq-supervisor:control stop
+$ bin/console rabbitmq-supervisor:control start
+$ bin/console rabbitmq-supervisor:control restart
+$ bin/console rabbitmq-supervisor:control hup
+```
+
+To list all commands of this bundle run
+```sh
+$ bin/console list rabbitmq-supervisor
 ```
