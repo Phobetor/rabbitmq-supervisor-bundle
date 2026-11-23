@@ -17,7 +17,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
     /**
      * {@inheritDoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         if ($container->hasParameter('kernel.project_dir')) {
             $container->setParameter('phobetor_rabbitmq_supervisor.project_dir', '%kernel.project_dir%');
@@ -70,7 +70,7 @@ class RabbitMqSupervisorExtension extends Extension implements PrependExtensionI
         $container->setParameter('phobetor_rabbitmq_supervisor.commands', $config['commands']);
     }
 
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $attributeNames = array('consumers', 'multiple_consumers', 'batch_consumers', 'rpc_servers');
         $attributes = array_combine($attributeNames, array_fill(0, count($attributeNames), []));

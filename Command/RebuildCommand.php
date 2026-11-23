@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RebuildCommand extends AbstractRabbitMqSupervisorAwareCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('rabbitmq-supervisor:rebuild')
@@ -18,7 +18,7 @@ class RebuildCommand extends AbstractRabbitMqSupervisorAwareCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->rabbitMqSupervisor->setWaitForSupervisord(!(bool) $input->getOption('no-wait-for-supervisord'));
         $this->rabbitMqSupervisor->rebuild();
