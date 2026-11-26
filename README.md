@@ -17,7 +17,7 @@ When your worker configuration or your code changes, run the command again and a
 ## Requirements
 
 * PHP 7.1 or higher
-* Symfony 2.5 up to 7.x
+* Symfony 2.5 up to 8.x
 
 ## Installation
 
@@ -34,7 +34,7 @@ This will install the bundle to your project’s `vendor` directory.
 
 If you are using Symfony Flex, the bundle is registered automatically. Otherwise register it yourself.
 
-Symfony 4 to 7:
+Symfony 4 to 8:
 ```php
 // config/bundles.php
 return [
